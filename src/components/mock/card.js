@@ -1,6 +1,6 @@
 import {getRandomElement, getRandomNumber} from '@components/utils.js';
 
-const filmNames = [
+const FILM_NAMES = [
   `The Matrix`,
   `The Lord of the rings`,
   `The Interstellar`,
@@ -10,7 +10,7 @@ const filmNames = [
   `The Dark`
 ];
 
-const filmPosters = [
+const FILM_POSTERS = [
   `made-for-each-other.png`,
   `popeye-meets-sinbad.png`,
   `sagebrush-trail.jpg`,
@@ -20,7 +20,7 @@ const filmPosters = [
   `the-man-with-the-golden-arm.jpg`
 ];
 
-const filmGenres = [
+const FILM_GENRES = [
   `Drama`,
   `Noir`,
   `Horror`,
@@ -32,9 +32,9 @@ const filmGenres = [
   `Melodrama`
 ];
 
-const filmDescription = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget. Fusce tristique felis at fermentum pharetra. Aliquam id orci ut lectus varius viverra. Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante. Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum. Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat. Nunc fermentum tortor ac porta dapibus. In rutrum ac purus sit amet tempus.`;
+const FILM_DESCRIPTION = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget. Fusce tristique felis at fermentum pharetra. Aliquam id orci ut lectus varius viverra. Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante. Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum. Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat. Nunc fermentum tortor ac porta dapibus. In rutrum ac purus sit amet tempus.`;
 
-const comments = [{
+const COMMENTS = [{
   emoji: `angry.png`,
   date: `2019/12/31 23:59`,
   alt: `angry`,
@@ -67,7 +67,7 @@ const comments = [{
 }
 ];
 
-const directors = [
+const DIRECTORS = [
   `Michael Bay`,
   `Nikita Mikhalkov`,
   `Evgeniy Bajenov`,
@@ -78,7 +78,7 @@ const directors = [
   `Sobaka Spacey`,
 ];
 
-const writers = [
+const WRITERS = [
   `Pol Bettani`,
   `Sobaka Spacey`,
   `Richard Matt`,
@@ -167,7 +167,7 @@ const getRandomGenres = (array) => {
   return array.slice(0, getRandomNumber(genreFrom, genreTo));
 };
 
-const description = getRandomSentences(filmDescription);
+const description = getRandomSentences(FILM_DESCRIPTION);
 
 const getShortDescription = () => {
   return description.slice(0, 140);
@@ -180,7 +180,7 @@ const getRandomWriters = (array) => {
   return array.slice(0, getRandomNumber(WRITERS_FROM, WRITERS_TO));
 };
 
-const writersList = getRandomWriters(writers);
+const writersList = getRandomWriters(WRITERS);
 
 const getRandomActors = (array) => {
   const ACTORS_FROM = 1;
@@ -200,15 +200,15 @@ const getRandomDate = () => {
 
 const getFilmData = () => {
   return {
-    name: getRandomElement(filmNames),
-    poster: getRandomElement(filmPosters),
+    name: getRandomElement(FILM_NAMES),
+    poster: getRandomElement(FILM_POSTERS),
     description,
-    comments: getRandomComments(comments),
+    comments: getRandomComments(COMMENTS),
     rating: getRandomRating(),
     duration: getRandomDuration(),
-    gernes: getRandomGenres(filmGenres),
+    gernes: getRandomGenres(FILM_GENRES),
     shortDescription: getShortDescription(),
-    director: getRandomElement(directors),
+    director: getRandomElement(DIRECTORS),
     writers: writersList,
     actors: actorsList,
     country: getRandomElement(COUNTRIES),
