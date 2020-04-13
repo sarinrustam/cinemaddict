@@ -100,21 +100,6 @@ const ACTORS = [
   `Enot Koko`
 ];
 
-const MONTHS = [
-  `January`,
-  `February`,
-  `March`,
-  `April`,
-  `May`,
-  `June`,
-  `July`,
-  `August`,
-  `September`,
-  `October`,
-  `November`,
-  `December`
-];
-
 const COUNTRIES = [
   `Portugal`,
   `Spain`,
@@ -162,13 +147,6 @@ const getRandomRating = () => {
   return +`${getRandomNumber(ratingFrom, ratingTo).toFixed(0)}.${getRandomNumber(ratingFrom, ratingTo).toFixed(0)}`;
 };
 
-const getRandomYear = () => {
-  const minYear = 1921;
-  const maxYear = 2020;
-
-  return getRandomNumber(minYear, maxYear);
-};
-
 const getRandomDuration = () => {
   const hourFrom = 1;
   const hourTo = 3;
@@ -213,11 +191,11 @@ const getRandomActors = (array) => {
 
 const actorsList = getRandomActors(ACTORS);
 
-const getRandomDay = () => {
-  const FROM = 1;
-  const TO = 31;
 
-  return getRandomNumber(FROM, TO);
+const getRandomDate = () => {
+  const minDate = new Date(`1921`);
+  const maxDate = new Date();
+  return new Date(getRandomNumber(minDate.getTime(), maxDate.getTime()));
 };
 
 const getFilmData = () => {
@@ -227,9 +205,6 @@ const getFilmData = () => {
     description,
     comments: getRandomComments(comments),
     rating: getRandomRating(),
-    year: getRandomYear(),
-    month: getRandomElement(MONTHS),
-    day: getRandomDay(),
     duration: getRandomDuration(),
     gernes: getRandomGenres(filmGenres),
     shortDescription: getShortDescription(),
@@ -239,6 +214,7 @@ const getFilmData = () => {
     country: getRandomElement(COUNTRIES),
     pg: getRandomElement(PG_RATING),
     type: getRandomElement(TYPES),
+    date: getRandomDate(),
   };
 };
 
@@ -250,7 +226,6 @@ const getFilmsData = () => {
   for (let i = 0; i < COUNT_OBJECTS; i++) {
     currentArray.push(getFilmData());
   }
-
   return currentArray;
 };
 

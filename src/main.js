@@ -1,15 +1,13 @@
 
 import {renderRank} from '@components/rank.js';
 import {renderMenu, currentFilter, FILTER_ALL} from '@components/menu.js';
-import {renderSort} from '@components/sort.js';
+import {renderSort, currentSort, SORT_DATE, SORT_DEFAULT, SORT_RATING} from '@components/sort.js';
 import {renderBoard} from '@components/filmsBoard.js';
-import {renderFilmCards} from '@components/filmCards.js';
-import {renderButton} from '@components/moreButton.js';
+import {renderFilmCards, renderMainFilmCards} from '@components/filmCards.js';
+import {renderButton, initMoreButton} from '@components/moreButton.js';
 import {renderExtraBoard} from '@components/extra.js';
 import {renderPopup} from '@components/popup.js';
 import {getFilmsData} from '@components/mock/card.js';
-
-// render functions
 
 const init = function () {
   const COUNT_EXTRA_CARD = 2;
@@ -23,6 +21,20 @@ const init = function () {
     return currentFilter === it.type;
   });
 
+  const getFilmsDataSorted = function (data) {
+    if (currentSort === SORT_DEFAULT) {
+      return data;
+    }
+    if (currentSort === SORT_RATING) {
+      return data.sort((a, b) => b.rating - a.rating);
+    }
+    if (currentSort === SORT_DATE) {
+      return data.sort((a, b) => b.date - a.date);
+    }
+
+    return [];
+  };
+
   const main = document.querySelector(`.main`);
   const header = document.querySelector(`.header`);
 
@@ -35,9 +47,11 @@ const init = function () {
   const filmsElement = main.querySelector(`.films`);
   const filmsListContainer = filmsList.querySelector(`.films-list__container`);
 
-  renderFilmCards(filmsListContainer, filmsDataFiltered);
+  renderMainFilmCards(filmsListContainer, getFilmsDataSorted(filmsDataFiltered));
   renderButton(filmsList);
   renderExtraBoard(filmsElement);
+
+  initMoreButton();
 
   const filmsListExtra = filmsElement.querySelectorAll(`.films-list--extra`);
   const topRatedContainer = filmsListExtra[0].querySelector(`.films-list__container`);
@@ -49,7 +63,7 @@ const init = function () {
   renderFilmCards(topRatedContainer, filmsTopRatedData);
   renderFilmCards(mostCommentsContainer, filmsMostCommentedData);
 
-  // renderPopup(filmsData[0]);
+  renderPopup(filmsData[0]);
 };
 
 init();

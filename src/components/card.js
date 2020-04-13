@@ -5,7 +5,7 @@ const createCardMarkup = (data) => {
     `<h3 class="film-card__title">${data.name}</h3>
     <p class="film-card__rating">${data.rating}</p>
         <p class="film-card__info">
-          <span class="film-card__year">${data.year}</span>
+          <span class="film-card__year">${data.date.getFullYear()}</span>
     <span class="film-card__duration">${data.duration}</span>
     <span class="film-card__genre">${data.gernes[0]}</span>
         </p>

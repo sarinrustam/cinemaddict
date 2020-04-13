@@ -1,5 +1,20 @@
 import {render} from '@components/utils.js';
 
+const MONTHS = [
+  `January`,
+  `February`,
+  `March`,
+  `April`,
+  `May`,
+  `June`,
+  `July`,
+  `August`,
+  `September`,
+  `October`,
+  `November`,
+  `December`
+];
+
 const renderPopup = function (data) {
   const footer = document.querySelector(`.footer`);
 
@@ -45,7 +60,7 @@ const renderPopup = function (data) {
                 </tr>
                 <tr class="film-details__row">
                   <td class="film-details__term">Release Date</td>
-                  <td class="film-details__cell">${data.day} ${data.month} ${data.year}</td>
+                  <td class="film-details__cell">${data.date.getDate()} ${MONTHS[data.date.getMonth()]} ${data.date.getFullYear()}</td>
                 </tr>
                 <tr class="film-details__row">
                   <td class="film-details__term">Runtime</td>
