@@ -33,6 +33,18 @@ export default class Card {
     this.comments = null;
   }
 
+  init() {
+    this.poster = this._element.querySelector(`.film-card__poster`);
+    this.title = this._element.querySelector(`.film-card__title`);
+    this.comments = this._element.querySelector(`.film-card__comments`);
+
+    this.poster.addEventListener(`click`, this.clickHandler);
+    this.title.addEventListener(`click`, this.clickHandler);
+    this.comments.addEventListener(`click`, this.clickHandler);
+  }
+
+  clickHandler() {}
+
   getTemplate() {
     return createTemplate(this._data);
   }

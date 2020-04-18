@@ -5,12 +5,14 @@ import Board from '@components/filmsBoard.js';
 import FilmCards from '@components/filmCards.js';
 import FilmCardsExtra from '@components/extra.js';
 import Message from '@components/message.js';
+import Popup from '@components/popup.js';
 import {getFilmsData} from '@components/mock/card.js';
 import {RenderPosition, render} from '@components/utils.js';
 
 
 const init = function () {
   const COUNT_EXTRA_CARD = 2;
+  const footer = document.querySelector(`.footer`);
 
   const filmsData = getFilmsData();
   const filmsTopRatedData = filmsData.sort((a, b) => b.rating - a.rating).slice(0, COUNT_EXTRA_CARD);
@@ -40,7 +42,7 @@ const init = function () {
   render(main, sort.getElement(), RenderPosition.BEFOREEND);
   render(main, board.getElement(), RenderPosition.BEFOREEND);
 
-  if (!filmsData.length) {
+  if (filmsData.length) {
     const getFilmsDataSorted = function (data) {
       if (sort.active === sort.DEFAULT) {
         return data;
@@ -61,13 +63,24 @@ const init = function () {
     render(board.getElement(), filmsTopRated.getElement(), RenderPosition.BEFOREEND);
     render(board.getElement(), filmsMostCommented.getElement(), RenderPosition.BEFOREEND);
 
+    let popup = null;
+
+    filmCards.cardClickHandler = (data) => {
+      if (popup && popup.getElement()) {
+        popup.removeElement();
+      }
+
+      popup = new Popup(data);
+
+      footer.appendChild(popup.getElement());
+      popup.init();
+    };
 
     filmCards.init();
     filmsTopRated.init();
     filmsMostCommented.init();
   } else {
     const message = new Message(`There are no movies in our database`);
-
     render(board.getElement(), message.getElement(), RenderPosition.BEFOREEND);
   }
 };
