@@ -1,19 +1,28 @@
-import {render} from '@components/utils.js';
+import {createElement} from '@components/utils.js';
 
-const renderBoard = function (container) {
-  const createTemplate = () => {
-    return (
-      `<section class="films">
-        <section class="films-list">
-          <h2 class="films-list__title visually-hidden">All movies. Upcoming</h2>
-
-          <div class="films-list__container"></div>
-        </section>
-      </section>`
-    );
-  };
-
-  render(container, createTemplate(), `beforeEnd`);
+const createTemplate = () => {
+  return (
+    `<section class="films"></section>`
+  );
 };
 
-export {renderBoard};
+export default class Board {
+  constructor() {
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createTemplate(this._data);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

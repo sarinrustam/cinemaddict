@@ -1,69 +1,71 @@
-
-import {renderRank} from '@components/rank.js';
-import {renderMenu, currentFilter, FILTER_ALL} from '@components/menu.js';
-import {renderSort, currentSort, SORT_DATE, SORT_DEFAULT, SORT_RATING} from '@components/sort.js';
-import {renderBoard} from '@components/filmsBoard.js';
-import {renderFilmCards, renderMainFilmCards} from '@components/filmCards.js';
-import {renderButton, initMoreButton} from '@components/moreButton.js';
-import {renderExtraBoard} from '@components/extra.js';
-import {renderPopup} from '@components/popup.js';
+import Rank from '@components/rank.js';
+import Menu from '@components/menu.js';
+import Sort from '@components/sort.js';
+import Board from '@components/filmsBoard.js';
+import FilmCards from '@components/filmCards.js';
+import FilmCardsExtra from '@components/extra.js';
+import Popup from '@components/popup.js';
 import {getFilmsData} from '@components/mock/card.js';
+import {RenderPosition, render} from '@components/utils.js';
+
 
 const init = function () {
   const COUNT_EXTRA_CARD = 2;
 
   const filmsData = getFilmsData();
+  const filmsTopRatedData = filmsData.sort((a, b) => b.rating - a.rating).slice(0, COUNT_EXTRA_CARD);
+  const filmsMostCommentedData = filmsData.sort((a, b) => b.comments.length - a.comments.length).slice(0, COUNT_EXTRA_CARD);
+
+  const main = document.querySelector(`.main`);
+  const header = document.querySelector(`.header`);
+
+  const rank = new Rank();
+  const menu = new Menu(filmsData);
+  const sort = new Sort();
+
   const filmsDataFiltered = filmsData.filter((it) => {
-    if (currentFilter === FILTER_ALL) {
+    if (menu.active === menu.FILTER_ALL) {
       return true;
     }
 
-    return currentFilter === it.type;
+    return menu.active === it.type;
   });
 
   const getFilmsDataSorted = function (data) {
-    if (currentSort === SORT_DEFAULT) {
+    if (sort.active === sort.DEFAULT) {
       return data;
     }
-    if (currentSort === SORT_RATING) {
+    if (sort.active === sort.RATING) {
       return data.sort((a, b) => b.rating - a.rating);
     }
-    if (currentSort === SORT_DATE) {
+    if (sort.active === sort.DATE) {
       return data.sort((a, b) => b.date - a.date);
     }
 
     return [];
   };
 
-  const main = document.querySelector(`.main`);
-  const header = document.querySelector(`.header`);
+  const board = new Board();
+  const filmCards = new FilmCards(getFilmsDataSorted(filmsDataFiltered));
+  const filmsTopRated = new FilmCardsExtra(filmsTopRatedData, `Top Rated`);
+  const filmsMostCommented = new FilmCardsExtra(filmsMostCommentedData, `Most Commented`);
 
-  renderRank(header);
-  renderMenu(main, filmsData);
-  renderSort(main);
-  renderBoard(main);
+  render(header, rank.getElement(), RenderPosition.BEFOREEND);
+  render(main, menu.getElement(), RenderPosition.BEFOREEND);
+  render(main, sort.getElement(), RenderPosition.BEFOREEND);
+  render(main, board.getElement(), RenderPosition.BEFOREEND);
 
-  const filmsList = main.querySelector(`.films-list`);
-  const filmsElement = main.querySelector(`.films`);
-  const filmsListContainer = filmsList.querySelector(`.films-list__container`);
+  render(board.getElement(), filmCards.getElement(), RenderPosition.BEFOREEND);
+  render(board.getElement(), filmsTopRated.getElement(), RenderPosition.BEFOREEND);
+  render(board.getElement(), filmsMostCommented.getElement(), RenderPosition.BEFOREEND);
 
-  renderMainFilmCards(filmsListContainer, getFilmsDataSorted(filmsDataFiltered));
-  renderButton(filmsList);
-  renderExtraBoard(filmsElement);
+  filmCards.init();
+  filmsTopRated.init();
+  filmsMostCommented.init();
 
-  initMoreButton();
-
-  const filmsListExtra = filmsElement.querySelectorAll(`.films-list--extra`);
-  const topRatedContainer = filmsListExtra[0].querySelector(`.films-list__container`);
-  const mostCommentsContainer = filmsListExtra[1].querySelector(`.films-list__container`);
-
-  const filmsTopRatedData = filmsData.sort((a, b) => b.rating - a.rating).slice(0, COUNT_EXTRA_CARD);
-  const filmsMostCommentedData = filmsData.sort((a, b) => b.comments.length - a.comments.length).slice(0, COUNT_EXTRA_CARD);
-
-  renderFilmCards(topRatedContainer, filmsTopRatedData);
-  renderFilmCards(mostCommentsContainer, filmsMostCommentedData);
-
-  renderPopup(filmsData[0]);
+  const popup = new Popup(filmsData[0]);
+  const footer = document.querySelector(`.footer`);
+  render(footer, popup.getElement(), RenderPosition.BEFOREEND);
 };
 
 init();
