@@ -4,12 +4,14 @@ import Sort from '@components/sort.js';
 import Board from '@components/filmsBoard.js';
 import FilmCards from '@components/filmCards.js';
 import FilmCardsExtra from '@components/extra.js';
+import Popup from '@components/popup.js';
 import {getFilmsData} from '@components/mock/card.js';
 import {RenderPosition, render} from '@components/utils.js';
 
 
 const init = function () {
   const COUNT_EXTRA_CARD = 2;
+  const footer = document.querySelector(`.footer`);
 
   const filmsData = getFilmsData();
   const filmsTopRatedData = filmsData.sort((a, b) => b.rating - a.rating).slice(0, COUNT_EXTRA_CARD);
@@ -57,6 +59,19 @@ const init = function () {
   render(board.getElement(), filmCards.getElement(), RenderPosition.BEFOREEND);
   render(board.getElement(), filmsTopRated.getElement(), RenderPosition.BEFOREEND);
   render(board.getElement(), filmsMostCommented.getElement(), RenderPosition.BEFOREEND);
+
+  let popup = null;
+
+  filmCards.cardClickHandler = (data) => {
+    if (popup && popup.getElement()) {
+      popup.removeElement();
+    }
+
+    popup = new Popup(data);
+    popup.init();
+
+    footer.appendChild(popup.getElement());
+  };
 
   filmCards.init();
   filmsTopRated.init();

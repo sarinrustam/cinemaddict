@@ -1,4 +1,4 @@
-import {createElement} from '@components/utils.js';
+import {createElement, Buttons} from '@components/utils.js';
 
 const MONTHS = [
   `January`,
@@ -149,6 +149,17 @@ export default class Popup {
   constructor(data) {
     this._element = null;
     this._data = data;
+    this.closePopupHandler = this.closePopupHandler.bind(this);
+  }
+
+  init() {
+    window.addEventListener(`keydown`, this.closePopupHandler);
+  }
+
+  closePopupHandler(evt) {
+    if (evt.key === Buttons.ESC) {
+      this.removeElement();
+    }
   }
 
   getTemplate() {
@@ -163,6 +174,9 @@ export default class Popup {
   }
 
   removeElement() {
+    window.removeEventListener(`keydown`, this.closePopupHandler);
+
+    this._element.parentNode.removeChild(this._element);
     this._element = null;
   }
 }
