@@ -71,19 +71,28 @@ export default class FilmCards {
 
         this._popup = new Popup(it);
         this._activeCard = card;
+        this._popup.escButton = this._popup.getElement().querySelector(`.film-details__close-btn`);
 
         this._footer.appendChild(this._popup.getElement());
 
+        const popupClose = () => {
+          if (this._popup) {
+            this._footer.removeChild(this._popup.getElement());
+
+            this._popup = null;
+            this._activeCard = null;
+          }
+        };
+
         window.addEventListener(`keydown`, (evt) => {
           if (evt.key === Buttons.ESC) {
-            if (this._popup && this._activeCard) {
-              this._footer.removeChild(this._popup.getElement());
-
-              this._popup = null;
-              this._activeCard = null;
-            }
+            popupClose();
           }
         });
+        this._popup.escButton.addEventListener(`click`, () => {
+          popupClose();
+        });
+
       };
 
       card.poster.addEventListener(`click`, clickPopupHandler);

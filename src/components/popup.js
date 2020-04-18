@@ -149,6 +149,7 @@ export default class Popup {
   constructor(data) {
     this._element = null;
     this._data = data;
+    this.escButton = null;
   }
 
   getTemplate() {
