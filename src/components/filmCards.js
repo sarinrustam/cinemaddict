@@ -1,7 +1,7 @@
 import Card from '@components/card.js';
 import {render, createElement, RenderPosition, Buttons} from '@components/utils.js';
 import MoreButton from '@components/moreButton.js';
-import Popup from '@components/Popup.js';
+import Popup from '@components/popup.js';
 
 const DEFAULT_CARDS = 5;
 const SHOW_CLICK_CARDS = 5;
