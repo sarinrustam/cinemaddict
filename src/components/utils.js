@@ -1,3 +1,9 @@
+export const Buttons = {
+  LMB: 0,
+  ENT: `Enter`,
+  ESC: `Escape`,
+};
+
 export const RenderPosition = {
   AFTERBEGIN: `afterbegin`,
   BEFOREEND: `beforeend`

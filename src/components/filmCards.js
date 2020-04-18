@@ -1,6 +1,7 @@
 import Card from '@components/card.js';
-import {render, createElement, RenderPosition} from '@components/utils.js';
+import {render, createElement, RenderPosition, Buttons} from '@components/utils.js';
 import MoreButton from '@components/moreButton.js';
+import Popup from '@components/Popup.js';
 
 const DEFAULT_CARDS = 5;
 const SHOW_CLICK_CARDS = 5;
@@ -19,10 +20,14 @@ export default class FilmCards {
     this._showingCardCount = DEFAULT_CARDS;
     this._container = null;
     this._moreButton = null;
+    this._popup = null;
+    this._activeCard = null;
+    this._footer = null;
   }
 
   init() {
     this._container = this._element.querySelector(`.films-list__container`);
+    this._footer = document.querySelector(`.footer`);
     this.renderCards(this._data.slice(0, this._showingCardCount));
 
     this._moreButton = new MoreButton();
@@ -54,6 +59,36 @@ export default class FilmCards {
       const card = new Card(it);
 
       render(this._container, card.getElement(), RenderPosition.BEFOREEND);
+
+      card.poster = card.getElement().querySelector(`.film-card__poster`);
+      card.title = card.getElement().querySelector(`.film-card__title`);
+      card.comments = card.getElement().querySelector(`.film-card__comments`);
+
+      const clickPopupHandler = () => {
+        if (this._popup) {
+          this._footer.removeChild(this._popup.getElement());
+        }
+
+        this._popup = new Popup(it);
+        this._activeCard = card;
+
+        this._footer.appendChild(this._popup.getElement());
+
+        window.addEventListener(`keydown`, (evt) => {
+          if (evt.key === Buttons.ESC) {
+            if (this._popup && this._activeCard) {
+              this._footer.removeChild(this._popup.getElement());
+
+              this._popup = null;
+              this._activeCard = null;
+            }
+          }
+        });
+      };
+
+      card.poster.addEventListener(`click`, clickPopupHandler);
+      card.title.addEventListener(`click`, clickPopupHandler);
+      card.comments.addEventListener(`click`, clickPopupHandler);
     });
   }
 

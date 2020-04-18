@@ -28,6 +28,10 @@ export default class Card {
   constructor(data) {
     this._element = null;
     this._data = data;
+    this.poster = null;
+    this.title = null;
+    this.comments = null;
+    this.escButton = null;
   }
 
   getTemplate() {

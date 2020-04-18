@@ -4,7 +4,6 @@ import Sort from '@components/sort.js';
 import Board from '@components/filmsBoard.js';
 import FilmCards from '@components/filmCards.js';
 import FilmCardsExtra from '@components/extra.js';
-import Popup from '@components/popup.js';
 import {getFilmsData} from '@components/mock/card.js';
 import {RenderPosition, render} from '@components/utils.js';
 
@@ -62,10 +61,6 @@ const init = function () {
   filmCards.init();
   filmsTopRated.init();
   filmsMostCommented.init();
-
-  const popup = new Popup(filmsData[0]);
-  const footer = document.querySelector(`.footer`);
-  render(footer, popup.getElement(), RenderPosition.BEFOREEND);
 };
 
 init();
