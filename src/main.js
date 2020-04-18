@@ -4,6 +4,7 @@ import Sort from '@components/sort.js';
 import Board from '@components/filmsBoard.js';
 import FilmCards from '@components/filmCards.js';
 import FilmCardsExtra from '@components/extra.js';
+import Message from '@components/message.js';
 import {getFilmsData} from '@components/mock/card.js';
 import {RenderPosition, render} from '@components/utils.js';
 
@@ -30,22 +31,7 @@ const init = function () {
     return menu.active === it.type;
   });
 
-  const getFilmsDataSorted = function (data) {
-    if (sort.active === sort.DEFAULT) {
-      return data;
-    }
-    if (sort.active === sort.RATING) {
-      return data.sort((a, b) => b.rating - a.rating);
-    }
-    if (sort.active === sort.DATE) {
-      return data.sort((a, b) => b.date - a.date);
-    }
-
-    return [];
-  };
-
   const board = new Board();
-  const filmCards = new FilmCards(getFilmsDataSorted(filmsDataFiltered));
   const filmsTopRated = new FilmCardsExtra(filmsTopRatedData, `Top Rated`);
   const filmsMostCommented = new FilmCardsExtra(filmsMostCommentedData, `Most Commented`);
 
@@ -54,13 +40,36 @@ const init = function () {
   render(main, sort.getElement(), RenderPosition.BEFOREEND);
   render(main, board.getElement(), RenderPosition.BEFOREEND);
 
-  render(board.getElement(), filmCards.getElement(), RenderPosition.BEFOREEND);
-  render(board.getElement(), filmsTopRated.getElement(), RenderPosition.BEFOREEND);
-  render(board.getElement(), filmsMostCommented.getElement(), RenderPosition.BEFOREEND);
+  if (!filmsData.length) {
+    const getFilmsDataSorted = function (data) {
+      if (sort.active === sort.DEFAULT) {
+        return data;
+      }
+      if (sort.active === sort.RATING) {
+        return data.sort((a, b) => b.rating - a.rating);
+      }
+      if (sort.active === sort.DATE) {
+        return data.sort((a, b) => b.date - a.date);
+      }
 
-  filmCards.init();
-  filmsTopRated.init();
-  filmsMostCommented.init();
+      return [];
+    };
+
+    const filmCards = new FilmCards(getFilmsDataSorted(filmsDataFiltered));
+
+    render(board.getElement(), filmCards.getElement(), RenderPosition.BEFOREEND);
+    render(board.getElement(), filmsTopRated.getElement(), RenderPosition.BEFOREEND);
+    render(board.getElement(), filmsMostCommented.getElement(), RenderPosition.BEFOREEND);
+
+
+    filmCards.init();
+    filmsTopRated.init();
+    filmsMostCommented.init();
+  } else {
+    const message = new Message(`There are no movies in our database`);
+
+    render(board.getElement(), message.getElement(), RenderPosition.BEFOREEND);
+  }
 };
 
 init();
