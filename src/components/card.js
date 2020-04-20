@@ -31,7 +31,6 @@ export default class Card {
     this.poster = null;
     this.title = null;
     this.comments = null;
-    this.escButton = null;
   }
 
   init() {

@@ -149,15 +149,18 @@ export default class Popup {
   constructor(data) {
     this._element = null;
     this._data = data;
+    this.escButton = null;
     this.closePopupHandler = this.closePopupHandler.bind(this);
   }
 
   init() {
+    this.escButton = this._element.querySelector(`.film-details__close-btn`);
     window.addEventListener(`keydown`, this.closePopupHandler);
+    this.escButton.addEventListener(`click`, this.closePopupHandler);
   }
 
   closePopupHandler(evt) {
-    if (evt.key === Buttons.ESC) {
+    if ((evt.type === `keydown` && evt.key === Buttons.ESC) || evt.type === `click`) {
       this.removeElement();
     }
   }
@@ -175,6 +178,7 @@ export default class Popup {
 
   removeElement() {
     window.removeEventListener(`keydown`, this.closePopupHandler);
+    this.escButton.removeEventListener(`click`, this.closePopupHandler);
 
     this._element.parentNode.removeChild(this._element);
     this._element = null;
