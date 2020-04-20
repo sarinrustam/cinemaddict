@@ -1,9 +1,8 @@
-import {render} from '@components/utils.js';
+import {createElement} from '@components/utils.js';
 
 const SORT_DEFAULT = `default`;
 const SORT_DATE = `date`;
 const SORT_RATING = `rating`;
-
 
 const sorted = [
   {
@@ -20,18 +19,41 @@ const sorted = [
   }
 ];
 
-const currentSort = sorted[0].value;
+const createTemplate = () => {
+  const getSortList = sorted.map((item) => `<li><a href="#" class="sort__button">${item.title}</a></li>`).join(``);
 
-const renderSort = function (container) {
-  const createTemplate = () => {
-    return (
-      `<ul class="sort">
-      ${sorted.map((item) => `<li><a href="#" class="sort__button ${currentSort === item.value ? `sort__button--active` : ``}">${item.title}</a></li>`).join(``)}
-    </ul>`
-    );
-  };
-  render(container, createTemplate(), `beforeEnd`);
+  return (
+    `<ul class="sort">
+    ${getSortList}
+  </ul>`
+  );
 };
 
-export {renderSort, currentSort, SORT_DATE, SORT_DEFAULT, SORT_RATING};
+export default class Sort {
+  constructor(data) {
+    this._element = null;
+    this._data = data;
+    this.active = sorted[0].value;
+    this.DATE = SORT_DATE;
+    this.DEFAULT = SORT_DEFAULT;
+    this.RATING = SORT_RATING;
+  }
 
+  getTemplate() {
+    return createTemplate();
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
+
+// ${currentSort === item.value ? `sort__button--active` : ``}

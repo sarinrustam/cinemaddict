@@ -1,27 +1,32 @@
-import {render} from '@components/utils.js';
-import {showMoreCards} from '@components/filmCards.js';
+import {createElement} from '@components/utils.js';
 
-let moreButton;
-
-const renderButton = function (container) {
-  const createTemplate = () => {
-    return (
-      `<button class="films-list__show-more">Show more</button>`
-    );
-  };
-  render(container, createTemplate(), `beforeEnd`);
+const createTemplate = () => {
+  return (
+    `<button class="films-list__show-more">Show more</button>`
+  );
 };
 
-const initMoreButton = () => {
-  moreButton = document.querySelector(`.films-list__show-more`);
+export default class MoreButton {
+  constructor() {
+    this._element = null;
+  }
 
-  moreButton.addEventListener(`click`, () => {
-    showMoreCards();
-  });
-};
+  getTemplate() {
+    return createTemplate(this._data);
+  }
 
-const hideMoreButton = function () {
-  moreButton.classList.add(`visually-hidden`);
-};
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+    return this._element;
+  }
 
-export {renderButton, initMoreButton, hideMoreButton};
+  removeElement() {
+    this._element = null;
+  }
+
+  hide() {
+    this._element.classList.add(`visually-hidden`);
+  }
+}
