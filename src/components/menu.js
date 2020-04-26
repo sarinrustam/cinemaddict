@@ -1,69 +1,64 @@
-import {createElement} from '@components/utils.js';
+import AbstractComponent from '@components/abstract-component.js';
 
-const filters = [
-  {
-    title: `All movies`,
-    href: `#all`,
-    value: `AllMovies`,
-  },
-  {
-    title: `Watchlist`,
-    href: `#watchlist`,
-    value: `Watchlist`,
-  },
-  {
-    title: `History`,
-    href: `#history`,
-    value: `History`,
-  },
-  {
-    title: `Favorite`,
-    href: `#favorite`,
-    value: `Favorite`,
-  }
-];
+export const MenuType = {
+  ALL_MOVIES: `all-movies`,
+  WATCHLIST: `watchlist`,
+  HISTORY: `history`,
+  FAVORITES: `favorites`,
+};
 
-const FILTER_ALL = `AllMovies`;
+const getMenuTypeCount = (data, type) => {
+  return data.filter((it) => {
+    return type === it.type;
+  }).length;
+};
 
 const createTemplate = (data) => {
-  const getLinkList = filters.map((item) => {
-    return `<a href="${item.href}" class="main-navigation__item">${item.title}
-    ${item.value === FILTER_ALL ? `` : `<span class="main-navigation__item-count">${data.filter((it) => it.type === item.value).length}</span>`}
-    </a>`;
-  }).join(``);
-
   return (
     `<nav class="main-navigation">
-    <div class="main-navigation__items">
-      ${getLinkList}
-    </div>
-    <a href="#stats" class="main-navigation__additional">Stats</a>
-  </nav>`
+      <div class="main-navigation__items">
+        <a href="#all" data-menu-type=${MenuType.ALL_MOVIES} class="main-navigation__item main-navigation__item--active">All movies</a>
+        <a href="#watchlist" data-menu-type=${MenuType.WATCHLIST} class="main-navigation__item">Watchlist <span class="main-navigation__item-count">${getMenuTypeCount(data, MenuType.WATCHLIST)}</span></a>
+        <a href="#history" data-menu-type=${MenuType.HISTORY} class="main-navigation__item">History <span class="main-navigation__item-count">${getMenuTypeCount(data, MenuType.HISTORY)}</span></a>
+        <a href="#favorites" data-menu-type=${MenuType.FAVORITES} class="main-navigation__item">Favorites <span class="main-navigation__item-count">${getMenuTypeCount(data, MenuType.FAVORITES)}</span></a>
+      </div>
+      <a href="#stats" class="main-navigation__additional">Stats</a>
+    </nav>`
   );
 };
 
-export default class Menu {
+export default class Menu extends AbstractComponent {
   constructor(data) {
-    this._element = null;
+    super();
+
     this._data = data;
-    this.active = filters[0].value;
-    this.FILTER_ALL = FILTER_ALL;
+    this._currentMenuType = MenuType.ALL_MOVIES;
   }
 
   getTemplate() {
     return createTemplate(this._data);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
+  getMenuType() {
+    return this._currentMenuType;
   }
 
-  removeElement() {
-    this._element = null;
+  setMenuTypeChangeHandler(handler) {
+    this.getElement().addEventListener(`click`, (evt) => {
+      evt.preventDefault();
+
+      if (evt.target.tagName === !`A`) {
+        return;
+      }
+
+      const menuType = evt.target.dataset.menuType;
+
+      if (this._currentMenuType === menuType) {
+        return;
+      }
+
+      this._currentMenuType = menuType;
+      handler(this._currentMenuType);
+    });
   }
 }
-
-// ${ === item.value ? `main-navigation__item--active` : ``}

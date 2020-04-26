@@ -1,4 +1,4 @@
-import {createElement} from '@components/utils.js';
+import AbstractComponent from '@components/abstract-component.js';
 
 const createTemplate = (data) => {
   const cardMarkup = `<h3 class="film-card__title">${data.name}</h3>
@@ -24,40 +24,24 @@ const createTemplate = (data) => {
   );
 };
 
-export default class Card {
+export default class Card extends AbstractComponent {
   constructor(data) {
-    this._element = null;
+    super();
+
     this._data = data;
-    this.poster = null;
-    this.title = null;
-    this.comments = null;
   }
-
-  init() {
-    this.poster = this._element.querySelector(`.film-card__poster`);
-    this.title = this._element.querySelector(`.film-card__title`);
-    this.comments = this._element.querySelector(`.film-card__comments`);
-
-    this.poster.addEventListener(`click`, this.clickHandler);
-    this.title.addEventListener(`click`, this.clickHandler);
-    this.comments.addEventListener(`click`, this.clickHandler);
-  }
-
-  clickHandler() {}
 
   getTemplate() {
     return createTemplate(this._data);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
+  setClickPopupHandler(handler) {
+    const poster = this.getElement().querySelector(`.film-card__poster`);
+    const title = this.getElement().querySelector(`.film-card__title`);
+    const comments = this.getElement().querySelector(`.film-card__comments`);
 
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
+    poster.addEventListener(`click`, handler);
+    title.addEventListener(`click`, handler);
+    comments.addEventListener(`click`, handler);
   }
 }

@@ -1,4 +1,4 @@
-import {getRandomElement, getRandomNumber} from '@components/utils.js';
+import {getRandomElement, getRandomNumber} from '@src/utils/common.js';
 
 const FILM_NAMES = [
   `The Matrix`,
@@ -121,9 +121,9 @@ const PG_RATING = [
 ];
 
 const TYPES = [
-  `Watchlist`,
-  `History`,
-  `Favorite`,
+  `watchlist`,
+  `history`,
+  `favorites`,
 ];
 
 const getRandomSentences = (string) => {

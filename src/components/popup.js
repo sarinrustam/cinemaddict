@@ -1,4 +1,4 @@
-import {createElement, Buttons} from '@components/utils.js';
+import AbstractComponent from '@components/abstract-component.js';
 
 const MONTHS = [
   `January`,
@@ -145,42 +145,21 @@ const createTemplate = (data) => {
   );
 };
 
-export default class Popup {
+export default class Popup extends AbstractComponent {
   constructor(data) {
-    this._element = null;
+    super();
+
     this._data = data;
-    this.escButton = null;
-    this.closePopupHandler = this.closePopupHandler.bind(this);
-  }
-
-  init() {
-    this.escButton = this._element.querySelector(`.film-details__close-btn`);
-    window.addEventListener(`keydown`, this.closePopupHandler);
-    this.escButton.addEventListener(`click`, this.closePopupHandler);
-  }
-
-  closePopupHandler(evt) {
-    if ((evt.type === `keydown` && evt.key === Buttons.ESC) || evt.type === `click`) {
-      this.removeElement();
-    }
   }
 
   getTemplate() {
     return createTemplate(this._data);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
+  setClickPopupHandler(handler) {
+    const closeBtn = this.getElement().querySelector(`.film-details__close-btn`);
 
-  removeElement() {
-    window.removeEventListener(`keydown`, this.closePopupHandler);
-    this.escButton.removeEventListener(`click`, this.closePopupHandler);
-
-    this._element.parentNode.removeChild(this._element);
-    this._element = null;
+    closeBtn.addEventListener(`click`, handler);
   }
 }
+

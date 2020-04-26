@@ -1,59 +1,52 @@
-import {createElement} from '@components/utils.js';
+import AbstractComponent from '@components/abstract-component.js';
 
-const SORT_DEFAULT = `default`;
-const SORT_DATE = `date`;
-const SORT_RATING = `rating`;
-
-const sorted = [
-  {
-    title: `Sort by default`,
-    value: SORT_DEFAULT,
-  },
-  {
-    title: `Sort by date`,
-    value: SORT_DATE,
-  },
-  {
-    title: `Sort by rating`,
-    value: SORT_RATING,
-  }
-];
+export const SortType = {
+  SORT_RATING: `rating`,
+  SORT_DATE: `date-up`,
+  DEFAULT: `default`,
+};
 
 const createTemplate = () => {
-  const getSortList = sorted.map((item) => `<li><a href="#" class="sort__button">${item.title}</a></li>`).join(``);
-
   return (
     `<ul class="sort">
-    ${getSortList}
-  </ul>`
+      <li><a href="#" data-sort-type=${SortType.DEFAULT} class="sort__button sort__button--active">Sort by default</a></li>
+      <li><a href="#" data-sort-type=${SortType.SORT_DATE} class="sort__button">Sort by date</a></li>
+      <li><a href="#" data-sort-type=${SortType.SORT_RATING} class="sort__button">Sort by rating</a></li>
+    </ul>`
   );
 };
 
-export default class Sort {
-  constructor(data) {
-    this._element = null;
-    this._data = data;
-    this.active = sorted[0].value;
-    this.DATE = SORT_DATE;
-    this.DEFAULT = SORT_DEFAULT;
-    this.RATING = SORT_RATING;
+export default class Sort extends AbstractComponent {
+  constructor() {
+    super();
+
+    this._currentSortType = SortType.DEFAULT;
   }
 
   getTemplate() {
     return createTemplate();
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
+  getSortType() {
+    return this._currentSortType;
   }
 
-  removeElement() {
-    this._element = null;
+  setSortTypeChangeHandler(handler) {
+    this.getElement().addEventListener(`click`, (evt) => {
+      evt.preventDefault();
+
+      if (evt.target.tagName === !`A` || evt.target.tagName === !`LI`) {
+        return;
+      }
+
+      const sortType = evt.target.dataset.sortType;
+
+      if (this._currenSortType === sortType) {
+        return;
+      }
+
+      this._currenSortType = sortType;
+      handler(this._currenSortType);
+    });
   }
 }
-
-// ${currentSort === item.value ? `sort__button--active` : ``}
