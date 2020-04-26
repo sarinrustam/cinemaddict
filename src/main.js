@@ -11,6 +11,7 @@ const init = function () {
   const header = document.querySelector(`.header`);
 
   const rank = new Rank();
+
   render(header, rank, RenderPosition.BEFOREEND);
 
   const mainController = new MainController(main);
