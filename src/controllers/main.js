@@ -57,25 +57,6 @@ const renderCards = function (container, cards) {
   });
 };
 
-// const getSortedCards = (cards, sortType, from, to) => {
-//   let sortedCards = [];
-//   const showingCards = cards.slice();
-
-//   switch (sortType) {
-//     case SortType.SORT_DATE:
-//       sortedCards = showingCards.sort((a, b) => b.date - a.date);
-//       break;
-//     case SortType.SORT_RATING:
-//       sortedCards = showingCards.sort((a, b) => b.rating - a.rating);
-//       break;
-//     case SortType.DEFAULT:
-//       sortedCards = showingCards;
-//       break;
-//   }
-
-//   return sortedCards.slice(from, to);
-// };
-
 const getFilterdCards = (cards, menuType) => {
   return cards.filter((it) => {
     if (menuType === MenuType.ALL_MOVIES) {
