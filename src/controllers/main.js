@@ -11,6 +11,7 @@ import {render, RenderPosition, remove} from '@src/utils/render.js';
 
 const DEFAULT_CARDS = 5;
 const SHOW_CLICK_CARDS = 5;
+const COUNT_EXTRA_CARD = 2;
 
 const renderCard = function (container, data) {
   const card = new Card(data);
@@ -56,24 +57,24 @@ const renderCards = function (container, cards) {
   });
 };
 
-const getSortedCards = (cards, sortType, from, to) => {
-  let sortedCards = [];
-  const showingCards = cards.slice();
+// const getSortedCards = (cards, sortType, from, to) => {
+//   let sortedCards = [];
+//   const showingCards = cards.slice();
 
-  switch (sortType) {
-    case SortType.SORT_DATE:
-      sortedCards = showingCards.sort((a, b) => b.date - a.date);
-      break;
-    case SortType.SORT_RATING:
-      sortedCards = showingCards.sort((a, b) => b.rating - a.rating);
-      break;
-    case SortType.DEFAULT:
-      sortedCards = showingCards;
-      break;
-  }
+//   switch (sortType) {
+//     case SortType.SORT_DATE:
+//       sortedCards = showingCards.sort((a, b) => b.date - a.date);
+//       break;
+//     case SortType.SORT_RATING:
+//       sortedCards = showingCards.sort((a, b) => b.rating - a.rating);
+//       break;
+//     case SortType.DEFAULT:
+//       sortedCards = showingCards;
+//       break;
+//   }
 
-  return sortedCards.slice(from, to);
-};
+//   return sortedCards.slice(from, to);
+// };
 
 const getFilterdCards = (cards, menuType) => {
   return cards.filter((it) => {
@@ -88,10 +89,30 @@ const getFilterdCards = (cards, menuType) => {
 export default class MainController {
   constructor(container) {
     this._container = container;
+    this._showingCardCount = DEFAULT_CARDS;
     this._sort = new Sort();
     this._board = new Board();
     this._message = new Message();
     this._moreButton = new MoreButton();
+  }
+
+  _renderSortedCards(cards, sortType, from, to) {
+    let sortedCards = [];
+    const showingCards = cards.slice();
+
+    switch (sortType) {
+      case SortType.SORT_DATE:
+        sortedCards = showingCards.sort((a, b) => b.date - a.date);
+        break;
+      case SortType.SORT_RATING:
+        sortedCards = showingCards.sort((a, b) => b.rating - a.rating);
+        break;
+      case SortType.DEFAULT:
+        sortedCards = showingCards;
+        break;
+    }
+
+    return sortedCards.slice(from, to);
   }
 
   _renderContainer(cards) {
@@ -113,61 +134,54 @@ export default class MainController {
 
     render(this._board.getElement(), filmCards, RenderPosition.BEFOREEND);
 
-    let showingCardCount = DEFAULT_CARDS;
-
     const renderLoadMoreButton = () => {
-      if (showingCardCount >= filteredCards.length) {
+      if (this._showingCardCount >= filteredCards.length) {
         return;
       }
 
       render(filmCards.getElement(), this._moreButton, RenderPosition.BEFOREEND);
 
       this._moreButton.setClickHandler(() => {
-        const prevCardCount = showingCardCount;
-        showingCardCount = showingCardCount + SHOW_CLICK_CARDS;
-        const sortedCards = getSortedCards(filteredCards, this._sort.getSortType(), prevCardCount, showingCardCount);
+        const prevCardCount = this._showingCardCount;
+        this._showingCardCount = this._showingCardCount + SHOW_CLICK_CARDS;
+
+        const sortedCards = this._renderSortedCards(filteredCards, this._sort.getSortType(), prevCardCount, this._showingCardCount);
 
         renderCards(cardsContainer, sortedCards);
 
-        if (showingCardCount >= filteredCards.length) {
+        if (this._showingCardCount >= filteredCards.length) {
           remove(this._moreButton);
         }
       });
     };
 
-    renderCards(cardsContainer, filteredCards.slice(0, showingCardCount));
+    const rerenderCardsBySort = (sortType) => {
+      this._showingCardCount = SHOW_CLICK_CARDS;
+
+      const sortedCards = this._renderSortedCards(filteredCards, sortType, 0, this._showingCardCount);
+
+      cardsContainer.innerHTML = ``;
+
+      renderCards(cardsContainer, sortedCards);
+
+      renderLoadMoreButton();
+    };
+
+    renderCards(cardsContainer, filteredCards.slice(0, this._showingCardCount));
 
     renderLoadMoreButton();
 
     this._menu.setMenuTypeChangeHandler((menuType) => {
       filteredCards = getFilterdCards(cards, menuType);
-      showingCardCount = SHOW_CLICK_CARDS;
-
-      const sortedCards = getSortedCards(filteredCards, this._sort.getSortType(), 0, showingCardCount);
-
-      cardsContainer.innerHTML = ``;
-
-      renderCards(cardsContainer, sortedCards);
-
-      renderLoadMoreButton();
+      rerenderCardsBySort(this._sort.getSortType());
     });
 
     this._sort.setSortTypeChangeHandler((sortType) => {
-      showingCardCount = SHOW_CLICK_CARDS;
-
-      const sortedCards = getSortedCards(filteredCards, sortType, 0, showingCardCount);
-
-      cardsContainer.innerHTML = ``;
-
-      renderCards(cardsContainer, sortedCards);
-
-      renderLoadMoreButton();
+      rerenderCardsBySort(sortType);
     });
   }
 
   _renderExtraContent(cards) {
-    const COUNT_EXTRA_CARD = 2;
-
     const filmsTopRatedData = cards.sort((a, b) => b.rating - a.rating).slice(0, COUNT_EXTRA_CARD);
     const filmsMostCommentedData = cards.sort((a, b) => b.comments.length - a.comments.length).slice(0, COUNT_EXTRA_CARD);
 
