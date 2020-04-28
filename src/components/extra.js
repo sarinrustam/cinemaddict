@@ -1,5 +1,4 @@
-import {createElement, render, RenderPosition} from '@components/utils.js';
-import Card from '@components/card.js';
+import AbstractComponent from '@components/abstract-component.js';
 
 
 const createTemplate = (title) => {
@@ -11,40 +10,14 @@ const createTemplate = (title) => {
   );
 };
 
-export default class FilmCardsExtra {
-  constructor(data, title) {
-    this._data = data;
-    this._element = null;
-    this._container = null;
-    this._title = title;
-  }
+export default class FilmCardsExtra extends AbstractComponent {
+  constructor(title) {
+    super();
 
-  init() {
-    this._container = this._element.querySelector(`.films-list__container`);
-    this.renderCards(this._data.slice(0, this._showingCardCount));
+    this._title = title;
   }
 
   getTemplate() {
     return createTemplate(this._title);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElemenet() {
-    this._element = null;
-  }
-
-  renderCards(data) {
-    data.forEach((it) => {
-      const card = new Card(it);
-
-      render(this._container, card.getElement(), RenderPosition.BEFOREEND);
-    });
   }
 }
