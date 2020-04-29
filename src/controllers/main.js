@@ -4,52 +4,51 @@ import Board from '@components/filmsBoard.js';
 import FilmCards from '@components/filmCards.js';
 import Message from '@components/message.js';
 import MoreButton from '@components/moreButton.js';
-import Popup from '@components/popup.js';
-import Card from '@components/card.js';
 import FilmCardsExtra from '@components/extra.js';
+import CardController from '@controllers/card.js';
 import {render, RenderPosition, remove} from '@src/utils/render.js';
 
 const DEFAULT_CARDS = 5;
 const SHOW_CLICK_CARDS = 5;
 const COUNT_EXTRA_CARD = 2;
 
-const renderCard = function (container, data) {
-  const card = new Card(data);
-  const popup = new Popup(data);
+// const renderCard = function (container, data) {
+//   const card = new Card(data);
+//   const popup = new Popup(data);
 
-  const openPopup = () => {
-    const footer = document.querySelector(`.footer`);
-    footer.innerHTML = ``;
+//   const openPopup = () => {
+//     const footer = document.querySelector(`.footer`);
+//     footer.innerHTML = ``;
 
-    render(footer, popup, RenderPosition.BEFOREEND);
-  };
+//     render(footer, popup, RenderPosition.BEFOREEND);
+//   };
 
-  const closePopup = () => {
-    const footer = document.querySelector(`.footer`);
-    footer.innerHTML = ``;
-  };
+//   const closePopup = () => {
+//     const footer = document.querySelector(`.footer`);
+//     footer.innerHTML = ``;
+//   };
 
-  const onEscKeyDown = (evt) => {
-    const isEscKey = evt.key === `Escape` || evt.key === `Esc`;
+//   const onEscKeyDown = (evt) => {
+//     const isEscKey = evt.key === `Escape` || evt.key === `Esc`;
 
-    if (isEscKey) {
-      closePopup();
-      document.removeEventListener(`keydown`, onEscKeyDown);
-    }
-  };
+//     if (isEscKey) {
+//       closePopup();
+//       document.removeEventListener(`keydown`, onEscKeyDown);
+//     }
+//   };
 
-  card.setClickPopupHandler(() => {
-    openPopup();
-    document.addEventListener(`keydown`, onEscKeyDown);
-  });
+//   card.setClickPopupHandler(() => {
+//     openPopup();
+//     document.addEventListener(`keydown`, onEscKeyDown);
+//   });
 
-  popup.setClickPopupHandler(()=>{
-    closePopup();
-    document.removeEventListener(`keydown`, onEscKeyDown);
-  });
+//   popup.setClickPopupHandler(()=>{
+//     closePopup();
+//     document.removeEventListener(`keydown`, onEscKeyDown);
+//   });
 
-  render(container, card, RenderPosition.BEFOREEND);
-};
+//   render(container, card, RenderPosition.BEFOREEND);
+// };
 
 const renderCards = function (container, cards) {
   cards.forEach((card) => {
