@@ -196,8 +196,7 @@ export default class Popup extends AbstractSmartComponent {
     const popupButtonsArray = Array.from(element.querySelectorAll(`.film-details__control-input`));
 
     popupButtonsArray.forEach((it) => {
-      it.addEventListener(`change`, (evt) => {
-        console.log(evt.target);
+      it.addEventListener(`change`, () => {
       });
     });
   }
