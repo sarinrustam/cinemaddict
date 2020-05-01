@@ -214,6 +214,9 @@ const getFilmData = () => {
     country: getRandomElement(COUNTRIES),
     pg: getRandomElement(PG_RATING),
     type: getRandomElement(TYPES),
+    isFavorite: !!getRandomNumber(0, 1),
+    isWatched: !!getRandomNumber(0, 1),
+    isInWatchlist: !!getRandomNumber(0, 1),
     date: getRandomDate(),
   };
 };

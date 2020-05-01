@@ -1,11 +1,19 @@
 import Card from '@components/card.js';
 import Popup from '@components/popup.js';
 
-import {render, replace, RenderPosition} from '@src/utils/render.js';
+import {render, RenderPosition, replace} from '@src/utils/render.js';
+
+const Mode = {
+  DEFAULT: `default`,
+  IS_OPEN: `open`,
+};
 
 export default class CardController {
-  constructor(contrainer) {
+  constructor(contrainer, onDataChange, onViewChange) {
     this._container = contrainer;
+    this._onDataChange = onDataChange;
+    this._onViewChange = onViewChange;
+    this._mode = Mode.DEFAULT;
 
     this._cardComponent = null;
     this._popupComponent = null;
@@ -14,6 +22,9 @@ export default class CardController {
   }
 
   render(card) {
+    const oldCardComponent = this._cardComponent;
+    const oldPopupComponent = this._popupComponent;
+
     this._cardComponent = new Card(card);
     this._popupComponent = new Popup(card);
 
@@ -27,19 +38,58 @@ export default class CardController {
       document.removeEventListener(`keydown`, this._onEscKeyDown);
     });
 
-    render(this._container, this._cardComponent, RenderPosition.BEFOREEND);
+    this._cardComponent.setAddToWatchlistHandler((evt) => {
+      evt.preventDefault();
+
+      this._onDataChange(this, card, Object.assign({}, card, {
+        isInWatchlist: !card.isInWatchlist,
+      }));
+    });
+
+    this._cardComponent.setMarkAsWatchedHandler((evt) => {
+      evt.preventDefault();
+
+      this._onDataChange(this, card, Object.assign({}, card, {
+        isWatched: !card.isWatched,
+      }));
+    });
+
+    this._cardComponent.setMarkAsFavoriteHandler((evt) => {
+      evt.preventDefault();
+
+      this._onDataChange(this, card, Object.assign({}, card, {
+        isFavorite: !card.isFavorite,
+      }));
+    });
+
+    // render(this._container, this._cardComponent, RenderPosition.BEFOREEND);
+    if (oldCardComponent && oldPopupComponent) {
+      replace(this._cardComponent, oldCardComponent);
+      replace(this._popupComponent, oldPopupComponent);
+    } else {
+      render(this._container, this._cardComponent, RenderPosition.BEFOREEND);
+    }
+  }
+
+  setDefaultView() {
+    if (this._mode !== Mode.DEFAULT) {
+      this._closePopup();
+    }
   }
 
   _openPopup() {
+    this._onViewChange();
     const footer = document.querySelector(`.footer`);
     footer.innerHTML = ``;
 
     render(footer, this._popupComponent, RenderPosition.BEFOREEND);
+    this._mode = Mode.IS_OPEN;
   }
 
   _closePopup() {
     const footer = document.querySelector(`.footer`);
     footer.innerHTML = ``;
+    this._mode = Mode.DEFAULT;
   }
 
   _onEscKeyDown(evt) {
@@ -51,41 +101,3 @@ export default class CardController {
     }
   }
 }
-
-// const renderCard = function (container, data) {
-// const card = new Card(data);
-// const popup = new Popup(data);
-
-// const openPopup = () => {
-//   const footer = document.querySelector(`.footer`);
-//   footer.innerHTML = ``;
-
-//   render(footer, popup, RenderPosition.BEFOREEND);
-// };
-
-// const closePopup = () => {
-//   const footer = document.querySelector(`.footer`);
-//   footer.innerHTML = ``;
-// };
-
-// const onEscKeyDown = (evt) => {
-//   const isEscKey = evt.key === `Escape` || evt.key === `Esc`;
-
-//   if (isEscKey) {
-//     closePopup();
-//     document.removeEventListener(`keydown`, onEscKeyDown);
-//   }
-// };
-
-// card.setClickPopupHandler(() => {
-//   openPopup();
-//   document.addEventListener(`keydown`, onEscKeyDown);
-// });
-
-// popup.setClickPopupHandler(()=>{
-//   closePopup();
-//   document.removeEventListener(`keydown`, onEscKeyDown);
-// });
-
-//   render(container, card, RenderPosition.BEFOREEND);
-// };
