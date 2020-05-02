@@ -1,4 +1,4 @@
-import AbstractComponent from '@components/abstract-component.js';
+import AbstractSmartComponent from '@components/abstract-smart-component.js';
 
 const MONTHS = [
   `January`,
@@ -145,11 +145,24 @@ const createTemplate = (data) => {
   );
 };
 
-export default class Popup extends AbstractComponent {
+export default class Popup extends AbstractSmartComponent {
   constructor(data) {
     super();
 
     this._data = data;
+
+    this._popupClickHandler = null;
+
+    this._subscribeOnEvents();
+  }
+
+  recoveryListeners() {
+    this.setSubmitHandler(this._submitHandler);
+    this._subscribeOnEvents();
+  }
+
+  rerender() {
+    super.rerender();
   }
 
   getTemplate() {
@@ -160,6 +173,32 @@ export default class Popup extends AbstractComponent {
     const closeBtn = this.getElement().querySelector(`.film-details__close-btn`);
 
     closeBtn.addEventListener(`click`, handler);
+
+    this._popupClickHandler = handler;
+  }
+
+  _subscribeOnEvents() {
+    const element = this.getElement();
+
+    const smileInputArray = Array.from(element.querySelectorAll(`.film-details__emoji-item`));
+
+    smileInputArray.forEach((it) => {
+      it.addEventListener(`change`, (evt) => {
+        const label = element.querySelector(`label[for="${evt.target.id}"]`);
+        const image = label.firstElementChild.cloneNode();
+
+        const putPlaceContainer = element.querySelector(`.film-details__add-emoji-label`);
+        putPlaceContainer.innerHTML = ``;
+        putPlaceContainer.appendChild(image);
+      });
+    });
+
+    const popupButtonsArray = Array.from(element.querySelectorAll(`.film-details__control-input`));
+
+    popupButtonsArray.forEach((it) => {
+      it.addEventListener(`change`, () => {
+      });
+    });
   }
 }
 
