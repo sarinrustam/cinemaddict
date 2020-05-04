@@ -1,21 +1,10 @@
 import AbstractSmartComponent from '@components/abstract-smart-component.js';
-
-const MONTHS = [
-  `January`,
-  `February`,
-  `March`,
-  `April`,
-  `May`,
-  `June`,
-  `July`,
-  `August`,
-  `September`,
-  `October`,
-  `November`,
-  `December`
-];
+import {formatTime, formatDateFull, formatDateFormComments} from '@src/utils/common.js';
 
 const createTemplate = (data) => {
+  const time = formatTime(data.duration);
+  const date = formatDateFull(data.date);
+
   return (
     `<section class="film-details">
     <form class="film-details__inner" action="" method="get">
@@ -57,11 +46,11 @@ const createTemplate = (data) => {
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Release Date</td>
-                <td class="film-details__cell">${data.date.getDate()} ${MONTHS[data.date.getMonth()]} ${data.date.getFullYear()}</td>
+                <td class="film-details__cell">${date}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Runtime</td>
-                <td class="film-details__cell">${data.duration}</td>
+                <td class="film-details__cell">${time}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Country</td>
@@ -102,7 +91,7 @@ const createTemplate = (data) => {
             <p class="film-details__comment-text">${it.text}</p>
             <p class="film-details__comment-info">
               <span class="film-details__comment-author">${it.author}</span>
-              <span class="film-details__comment-day">${it.date}</span>
+              <span class="film-details__comment-day">${formatDateFormComments(it.date)}</span>
               <button class="film-details__comment-delete">Delete</button>
             </p>
           </div>

@@ -34,39 +34,6 @@ const FILM_GENRES = [
 
 const FILM_DESCRIPTION = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget. Fusce tristique felis at fermentum pharetra. Aliquam id orci ut lectus varius viverra. Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante. Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum. Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat. Nunc fermentum tortor ac porta dapibus. In rutrum ac purus sit amet tempus.`;
 
-const COMMENTS = [{
-  emoji: `angry.png`,
-  date: `2019/12/31 23:59`,
-  alt: `angry`,
-  author: `Timo Verner`,
-  text: `Hello darkness my old friend`
-}, {
-  emoji: `puke.png`,
-  date: `2 days ago`,
-  alt: `puke`,
-  author: `Cristiano Ronaldo`,
-  text: `I've come to talk with you again`
-}, {
-  emoji: `sleeping.png`,
-  date: `1 days ago`,
-  alt: `sleeping`,
-  author: `Pablo Acosta`,
-  text: `Because a vision softly creeping`
-}, {
-  emoji: `smile.png`,
-  date: `tomorrow`,
-  alt: `smile`,
-  author: `Jimmy Hendrix`,
-  text: `How i can join in your heart`
-}, {
-  emoji: `angry.png`,
-  date: `today`,
-  alt: `angry`,
-  author: `Kate Backinsale`,
-  text: `lol idc coz of u`,
-}
-];
-
 const DIRECTORS = [
   `Michael Bay`,
   `Nikita Mikhalkov`,
@@ -126,12 +93,59 @@ const TYPES = [
   `favorites`,
 ];
 
+const MINUTES = {
+  MIN: 90,
+  MAX: 300,
+};
+
 const getRandomSentences = (string) => {
   const COUNT_FROM_SENTENCES = 1;
   const COUNT_TO_SENTENCES = 5;
 
   return string.split(`.`).slice(0, getRandomNumber(COUNT_FROM_SENTENCES, COUNT_TO_SENTENCES)).join(`.`);
 };
+
+const DATE_FILM_START = `1921`;
+const DATE_COMMENT_START = `2020`;
+
+const getRandomDate = (min) => {
+  const minDate = new Date(min);
+  const maxDate = new Date();
+  return new Date(getRandomNumber(minDate.getTime(), maxDate.getTime()));
+};
+
+const COMMENTS = [{
+  emoji: `angry.png`,
+  date: getRandomDate(DATE_COMMENT_START),
+  alt: `angry`,
+  author: `Timo Verner`,
+  text: `Hello darkness my old friend`
+}, {
+  emoji: `puke.png`,
+  date: getRandomDate(DATE_COMMENT_START),
+  alt: `puke`,
+  author: `Cristiano Ronaldo`,
+  text: `I've come to talk with you again`
+}, {
+  emoji: `sleeping.png`,
+  date: getRandomDate(DATE_COMMENT_START),
+  alt: `sleeping`,
+  author: `Pablo Acosta`,
+  text: `Because a vision softly creeping`
+}, {
+  emoji: `smile.png`,
+  date: getRandomDate(DATE_COMMENT_START),
+  alt: `smile`,
+  author: `Jimmy Hendrix`,
+  text: `How i can join in your heart`
+}, {
+  emoji: `angry.png`,
+  date: getRandomDate(DATE_COMMENT_START),
+  alt: `angry`,
+  author: `Kate Backinsale`,
+  text: `lol idc coz of u`,
+}
+];
 
 const getRandomComments = (array) => {
   const COUNT_FROM_COMMENTS = 0;
@@ -145,19 +159,6 @@ const getRandomRating = () => {
   const ratingTo = 8;
 
   return +`${getRandomNumber(ratingFrom, ratingTo).toFixed(0)}.${getRandomNumber(ratingFrom, ratingTo).toFixed(0)}`;
-};
-
-const getRandomDuration = () => {
-  const hourFrom = 1;
-  const hourTo = 3;
-
-  const minuteFrom = 0;
-  const minuteTo = 9;
-
-  const secondFrom = 0;
-  const secondTo = 9;
-
-  return `${getRandomNumber(hourFrom, hourTo)}h ${getRandomNumber(minuteFrom, minuteTo)}${getRandomNumber(secondFrom, secondTo)}m`;
 };
 
 const getRandomGenres = (array) => {
@@ -191,13 +192,6 @@ const getRandomActors = (array) => {
 
 const actorsList = getRandomActors(ACTORS);
 
-
-const getRandomDate = () => {
-  const minDate = new Date(`1921`);
-  const maxDate = new Date();
-  return new Date(getRandomNumber(minDate.getTime(), maxDate.getTime()));
-};
-
 const getFilmData = () => {
   return {
     name: getRandomElement(FILM_NAMES),
@@ -205,7 +199,7 @@ const getFilmData = () => {
     description,
     comments: getRandomComments(COMMENTS),
     rating: getRandomRating(),
-    duration: getRandomDuration(),
+    duration: getRandomNumber(MINUTES.MIN, MINUTES.MAX),
     gernes: getRandomGenres(FILM_GENRES),
     shortDescription: getShortDescription(),
     director: getRandomElement(DIRECTORS),
@@ -217,7 +211,7 @@ const getFilmData = () => {
     isFavorite: !!getRandomNumber(0, 1),
     isWatched: !!getRandomNumber(0, 1),
     isInWatchlist: !!getRandomNumber(0, 1),
-    date: getRandomDate(),
+    date: getRandomDate(DATE_FILM_START),
   };
 };
 

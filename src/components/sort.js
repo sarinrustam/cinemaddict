@@ -35,7 +35,7 @@ export default class Sort extends AbstractComponent {
     this.getElement().addEventListener(`click`, (evt) => {
       evt.preventDefault();
 
-      if (evt.target.tagName === !`A` || evt.target.tagName === !`LI`) {
+      if (evt.target.tagName !== `A` && evt.target.tagName !== `LI`) {
         return;
       }
 

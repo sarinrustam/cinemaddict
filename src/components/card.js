@@ -1,4 +1,5 @@
 import AbstractComponent from '@components/abstract-component.js';
+import {formatTime, formatDateYear} from '@src/utils/common.js';
 
 const createButtonMarkup = (name, isActive = true) => {
   return (
@@ -16,11 +17,14 @@ const createTemplate = (data) => {
   const markAsWatched = createButtonMarkup(`Mark as watched`, !data.isWatched);
   const markAsFavorite = createButtonMarkup(`Mark as favorite`, !data.isFavorite);
 
+  const time = formatTime(data.duration);
+  const year = formatDateYear(data.date);
+
   const cardMarkup = `<h3 class="film-card__title">${data.name}</h3>
   <p class="film-card__rating">${data.rating}</p>
       <p class="film-card__info">
-        <span class="film-card__year">${data.date.getFullYear()}</span>
-  <span class="film-card__duration">${data.duration}</span>
+        <span class="film-card__year">${year}</span>
+  <span class="film-card__duration">${time}</span>
   <span class="film-card__genre">${data.gernes[0]}</span>
       </p>
       <img src="./images/posters/${data.poster}" alt="" class="film-card__poster">
