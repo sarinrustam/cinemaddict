@@ -194,6 +194,7 @@ const actorsList = getRandomActors(ACTORS);
 
 const getFilmData = () => {
   return {
+    id: String(new Date() + Math.random()),
     name: getRandomElement(FILM_NAMES),
     poster: getRandomElement(FILM_POSTERS),
     description,
