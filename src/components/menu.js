@@ -1,26 +1,28 @@
 import AbstractComponent from '@components/abstract-component.js';
 
-export const MenuType = {
-  ALL_MOVIES: `all-movies`,
-  WATCHLIST: `watchlist`,
-  HISTORY: `history`,
-  FAVORITES: `favorites`,
-};
+const createMenuMarkup = (menu, isChecked) => {
+  const {title, value, count} = menu;
 
-const getMenuTypeCount = (data, type) => {
-  return data.filter((it) => {
-    return type === it.type;
-  }).length;
+  return (
+    `<a
+      href="#${value}"
+      data-menu-type=${value}
+      class="main-navigation__item ${isChecked ? `main-navigation__item--active` : ``}">
+      ${title}
+      <span class="main-navigation__item-count">
+      ${count}
+     </span>
+    </a>`
+  );
 };
 
 const createTemplate = (data) => {
+  const menuesMarkup = data.map((it) => createMenuMarkup(it, it.checked)).join(`\n`);
+
   return (
     `<nav class="main-navigation">
       <div class="main-navigation__items">
-        <a href="#all" data-menu-type=${MenuType.ALL_MOVIES} class="main-navigation__item main-navigation__item--active">All movies</a>
-        <a href="#watchlist" data-menu-type=${MenuType.WATCHLIST} class="main-navigation__item">Watchlist <span class="main-navigation__item-count">${getMenuTypeCount(data, MenuType.WATCHLIST)}</span></a>
-        <a href="#history" data-menu-type=${MenuType.HISTORY} class="main-navigation__item">History <span class="main-navigation__item-count">${getMenuTypeCount(data, MenuType.HISTORY)}</span></a>
-        <a href="#favorites" data-menu-type=${MenuType.FAVORITES} class="main-navigation__item">Favorites <span class="main-navigation__item-count">${getMenuTypeCount(data, MenuType.FAVORITES)}</span></a>
+      ${menuesMarkup}
       </div>
       <a href="#stats" class="main-navigation__additional">Stats</a>
     </nav>`
@@ -32,15 +34,10 @@ export default class Menu extends AbstractComponent {
     super();
 
     this._data = data;
-    this._currentMenuType = MenuType.ALL_MOVIES;
   }
 
   getTemplate() {
     return createTemplate(this._data);
-  }
-
-  getMenuType() {
-    return this._currentMenuType;
   }
 
   setMenuTypeChangeHandler(handler) {
@@ -51,14 +48,16 @@ export default class Menu extends AbstractComponent {
         return;
       }
 
-      const menuType = evt.target.dataset.menuType;
+      const prevActiveElement = this.getElement().querySelector(`.main-navigation__item--active`);
 
-      if (this._currentMenuType === menuType) {
-        return;
+      if (prevActiveElement) {
+        prevActiveElement.classList.remove(`main-navigation__item--active`);
       }
 
-      this._currentMenuType = menuType;
-      handler(this._currentMenuType);
+      evt.target.classList.add(`main-navigation__item--active`);
+
+      const menuType = evt.target.dataset.menuType;
+      handler(menuType);
     });
   }
 }

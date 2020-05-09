@@ -1,12 +1,14 @@
 import Card from '@components/card.js';
 import Popup from '@components/popup.js';
 
-import {render, RenderPosition, replace} from '@src/utils/render.js';
+import {render, RenderPosition, remove, replace} from '@src/utils/render.js';
 
-const Mode = {
+export const Mode = {
   DEFAULT: `default`,
   IS_OPEN: `open`,
 };
+
+export const EmptyCard = {};
 
 export default class CardController {
   constructor(contrainer, onDataChange, onViewChange) {
@@ -75,6 +77,12 @@ export default class CardController {
     if (this._mode !== Mode.DEFAULT) {
       this._closePopup();
     }
+  }
+
+  destroy() {
+    remove(this._popupComponent);
+    remove(this._cardComponent);
+    document.removeEventListener(`keydown`, this._onEscKeyDown);
   }
 
   _openPopup() {

@@ -6,6 +6,13 @@ export const Buttons = {
   ESC: `Escape`,
 };
 
+export const MenuType = {
+  ALL_MOVIES: `all-movies`,
+  WATCHLIST: `watchlist`,
+  HISTORY: `history`,
+  FAVORITES: `favorites`,
+};
+
 export const getRandomNumber = function (from, to) {
   let number = from + Math.random() * (to + 1 - from);
   return Math.floor(number);
