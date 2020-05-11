@@ -41,7 +41,9 @@ export default class Menu extends AbstractComponent {
   }
 
   setMenuTypeChangeHandler(handler) {
-    this.getElement().addEventListener(`click`, (evt) => {
+    const list = this.getElement().querySelector(`.main-navigation__items`);
+
+    list.addEventListener(`click`, (evt) => {
       evt.preventDefault();
 
       if (evt.target.tagName === !`A`) {
@@ -58,6 +60,15 @@ export default class Menu extends AbstractComponent {
 
       const menuType = evt.target.dataset.menuType;
       handler(menuType);
+    });
+  }
+
+  setStatisticsClickHandler(handler) {
+    const statButton = this.getElement().querySelector(`.main-navigation__additional`);
+
+    statButton.addEventListener(`click`, (evt) => {
+      evt.preventDefault();
+      handler();
     });
   }
 }

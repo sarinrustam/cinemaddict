@@ -5,9 +5,9 @@ import FilmCards from '@components/filmCards.js';
 import Message from '@components/message.js';
 import MoreButton from '@components/moreButton.js';
 import FilmCardsExtra from '@components/extra.js';
+import Statistics from '@components/statistics.js';
 import CardController, {Mode as CardControllerMode, EmptyCard} from '@controllers/card.js';
 import {render, RenderPosition, remove} from '@src/utils/render.js';
-// import {MenuType} from '@src/utils/common.js';
 
 const DEFAULT_CARDS = 5;
 const SHOW_CLICK_CARDS = 5;
@@ -34,6 +34,10 @@ export default class MainController {
     this._message = new Message();
     this._moreButton = new MoreButton();
     this._filmCards = new FilmCards();
+    this._stat = new Statistics();
+    this._filmsTopRated = new FilmCardsExtra(`Top rated`);
+    this._filmsMostCommented = new FilmCardsExtra(`Most commented`);
+
 
     this._showedCardControllers = [];
 
@@ -42,6 +46,7 @@ export default class MainController {
     this._onDataChange = this._onDataChange.bind(this);
     this._onViewChange = this._onViewChange.bind(this);
     this._onMenuChange = this._onMenuChange.bind(this);
+    this._onStatClickChange = this._onStatClickChange.bind(this);
 
     this._sortComponent.setSortTypeChangeHandler(this._onSortTypeChange);
     this._cardsModel.setMenuChangeHandler(this._onMenuChange);
@@ -73,6 +78,10 @@ export default class MainController {
 
     const filterController = new MenuController(this._container, this._cardsModel);
     filterController.render();
+
+    filterController.setStatisticsClickHandler(this._onStatClickChange);
+
+    render(this._container, this._stat, RenderPosition.BEFOREEND);
 
     render(this._container, this._sortComponent, RenderPosition.BEFOREEND);
     render(this._container, this._board, RenderPosition.BEFOREEND);
@@ -118,14 +127,11 @@ export default class MainController {
     const filmsTopRatedData = cards.sort((a, b) => b.rating - a.rating).slice(0, COUNT_EXTRA_CARD);
     const filmsMostCommentedData = cards.sort((a, b) => b.comments.length - a.comments.length).slice(0, COUNT_EXTRA_CARD);
 
-    const filmsTopRated = new FilmCardsExtra(`Top rated`);
-    const filmsMostCommented = new FilmCardsExtra(`Most commented`);
+    const filmsTopRatedContainer = this._filmsTopRated.getElement().querySelector(`.films-list__container`);
+    const filmsMostCommentedContainer = this._filmsMostCommented.getElement().querySelector(`.films-list__container`);
 
-    const filmsTopRatedContainer = filmsTopRated.getElement().querySelector(`.films-list__container`);
-    const filmsMostCommentedContainer = filmsMostCommented.getElement().querySelector(`.films-list__container`);
-
-    render(this._board.getElement(), filmsTopRated, RenderPosition.BEFOREEND);
-    render(this._board.getElement(), filmsMostCommented, RenderPosition.BEFOREEND);
+    render(this._board.getElement(), this._filmsTopRated, RenderPosition.BEFOREEND);
+    render(this._board.getElement(), this._filmsMostCommented, RenderPosition.BEFOREEND);
 
     renderCards(filmsTopRatedContainer, filmsTopRatedData.slice(0, COUNT_EXTRA_CARD));
     renderCards(filmsMostCommentedContainer, filmsMostCommentedData.slice(0, COUNT_EXTRA_CARD));
@@ -233,5 +239,32 @@ export default class MainController {
 
   _onMenuChange() {
     this._updateCards(DEFAULT_CARDS);
+  }
+
+  _onStatClickChange() {
+    if (this._stat.isOpen) {
+      this._stat.hide();
+      this._stat.isOpen = false;
+      this.show();
+    } else {
+      this._stat.show();
+      this._stat.isOpen = true;
+      this.hide();
+    }
+  }
+
+  hide() {
+    this._sortComponent.hide();
+    this._updateCards(DEFAULT_CARDS);
+    this._filmCards.hide();
+    this._filmsTopRated.hide();
+    this._filmsMostCommented.hide();
+  }
+
+  show() {
+    this._sortComponent.show();
+    this._filmCards.show();
+    this._filmsTopRated.show();
+    this._filmsMostCommented.show();
   }
 }

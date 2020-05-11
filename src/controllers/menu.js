@@ -50,4 +50,8 @@ export default class MenuController {
   _onDataChange() {
     this.render();
   }
+
+  setStatisticsClickHandler(handler) {
+    this._menuComponent.setStatisticsClickHandler(handler);
+  }
 }
