@@ -1,6 +1,8 @@
 import AbstractSmartComponent from '@components/abstract-smart-component.js';
 import {formatTime, formatDateFull, formatDateFormComments} from '@src/utils/common.js';
 
+import {encode} from 'he';
+
 const createTemplate = (data) => {
   const time = formatTime(data.duration);
   const date = formatDateFull(data.date);
@@ -88,7 +90,7 @@ const createTemplate = (data) => {
             <img src="./images/emoji/${it.emoji}" width="55" height="55" alt="emoji-${it.alt}">
           </span>
           <div>
-            <p class="film-details__comment-text">${it.text}</p>
+            <p class="film-details__comment-text">${encode(it.text)}</p>
             <p class="film-details__comment-info">
               <span class="film-details__comment-author">${it.author}</span>
               <span class="film-details__comment-day">${formatDateFormComments(it.date)}</span>
