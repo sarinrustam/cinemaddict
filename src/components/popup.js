@@ -83,7 +83,7 @@ const createTemplate = (data) => {
           <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${data.comments.length}</span></h3>
 
           <ul class="film-details__comments-list">
-          ${data.comments.map((it) => `<li class="film-details__comment">
+          ${data.comments.map((it, index) => `<li class="film-details__comment" data-id=${index}>
           <span class="film-details__comment-emoji">
             <img src="./images/emoji/${it.emoji}" width="55" height="55" alt="emoji-${it.alt}">
           </span>
@@ -139,10 +139,29 @@ export default class Popup extends AbstractSmartComponent {
     super();
 
     this._data = data;
+    this._newComment = {
+      text: ``,
+      emoji: ``,
+      alt: ``
+    };
 
     this._popupClickHandler = null;
+    this._submitHandler = null;
 
     this._subscribeOnEvents();
+  }
+
+  reset() {
+    this._newComment.text = ``;
+
+    this.rerender();
+  }
+
+  getNewComment() {
+    return Object.assign({}, this._newComment, {
+      author: ``,
+      date: new Date()
+    });
   }
 
   recoveryListeners() {
@@ -178,6 +197,7 @@ export default class Popup extends AbstractSmartComponent {
 
         const putPlaceContainer = element.querySelector(`.film-details__add-emoji-label`);
         putPlaceContainer.innerHTML = ``;
+        this._newComment.emoji = `${evt.target.value}.png`;
         putPlaceContainer.appendChild(image);
       });
     });
@@ -187,6 +207,24 @@ export default class Popup extends AbstractSmartComponent {
     popupButtonsArray.forEach((it) => {
       it.addEventListener(`change`, () => {
       });
+    });
+
+    element.querySelector(`.film-details__comment-input`).addEventListener(`input`, (evt) => {
+      this._newComment.text = evt.target.value;
+    });
+  }
+
+  setSubmitHandler(handler) {
+    this.getElement().querySelector(`form`).addEventListener(`keydown`, handler);
+
+    this._submitHandler = handler;
+  }
+
+  setDeleteCommentHandler(handler) {
+    const deleteButtons = Array.from(this.getElement().querySelectorAll(`.film-details__comment-delete`));
+
+    deleteButtons.forEach((it) => {
+      it.addEventListener(`click`, handler);
     });
   }
 }

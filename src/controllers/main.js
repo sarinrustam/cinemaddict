@@ -189,7 +189,7 @@ export default class MainController {
       this._cardsModel.removeCard(oldData.id);
       this._updateCards(this._showingCardCount);
     } else {
-      const isSuccess = this._cardsModel.updateCards(oldData.id, newData);
+      const isSuccess = this._cardsModel.updateCard(oldData.id, newData);
 
       if (isSuccess) {
         cardController.render(newData, CardControllerMode.DEFAULT);

@@ -56,7 +56,7 @@ export default class CardsModel {
     return true;
   }
 
-  addTask(card) {
+  addCard(card) {
     this._cards = [].concat(card, this._cards);
     this._callHandlers(this._dataChangeHandlers);
   }

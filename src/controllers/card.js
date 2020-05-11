@@ -2,6 +2,7 @@ import Card from '@components/card.js';
 import Popup from '@components/popup.js';
 
 import {render, RenderPosition, remove, replace} from '@src/utils/render.js';
+import {Buttons} from '@src/utils/common.js';
 
 export const Mode = {
   DEFAULT: `default`,
@@ -64,7 +65,30 @@ export default class CardController {
       }));
     });
 
-    // render(this._container, this._cardComponent, RenderPosition.BEFOREEND);
+    this._popupComponent.setDeleteCommentHandler((evt) => {
+      evt.preventDefault();
+
+      const commentElementIndex = evt.target.closest(`li`).dataset.id;
+
+      const comments = card.comments.slice();
+
+      comments.splice(commentElementIndex, 1);
+
+      this._onDataChange(this, card, Object.assign({}, card, {
+        comments
+      }));
+    });
+
+    this._popupComponent.setSubmitHandler((evt) => {
+      if (evt.key === Buttons.ENT && evt.ctrlKey) {
+        const comment = this._popupComponent.getNewComment();
+
+        this._onDataChange(this, card, Object.assign({}, card, {
+          comments: [].concat(card.comments, [comment])
+        }));
+      }
+    });
+
     if (oldCardComponent && oldPopupComponent) {
       replace(this._cardComponent, oldCardComponent);
       replace(this._popupComponent, oldPopupComponent);
@@ -98,6 +122,7 @@ export default class CardController {
     const footer = document.querySelector(`.footer`);
     footer.innerHTML = ``;
     this._mode = Mode.DEFAULT;
+    this._popupComponent.reset();
   }
 
   _onEscKeyDown(evt) {
