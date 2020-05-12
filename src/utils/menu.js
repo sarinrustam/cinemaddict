@@ -1,4 +1,4 @@
-import {MenuType} from '@src/utils/common.js';
+import {MenuTypes} from '@src/utils/common.js';
 
 export const getFavoriteCards = (cards) => {
   return cards.filter((card) => card.isFavorite);
@@ -14,13 +14,13 @@ export const getIsWatched = (cards) => {
 
 export const getFilterdCards = (cards, menuType) => {
   switch (menuType) {
-    case MenuType.ALL_MOVIES:
+    case MenuTypes.ALL_MOVIES:
       return cards;
-    case MenuType.WATCHLIST:
+    case MenuTypes.WATCHLIST:
       return getIsInWatchlistCards(cards);
-    case MenuType.HISTORY:
+    case MenuTypes.HISTORY:
       return getIsWatched(cards);
-    case MenuType.FAVORITES:
+    case MenuTypes.FAVORITES:
       return getFavoriteCards(cards);
   }
 

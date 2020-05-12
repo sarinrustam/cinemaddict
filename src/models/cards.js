@@ -1,10 +1,10 @@
 import {getFilterdCards} from '@src/utils/menu.js';
-import {MenuType} from '@src/utils/common.js';
+import {MenuTypes} from '@src/utils/common.js';
 
 export default class CardsModel {
   constructor() {
     this._cards = [];
-    this._activeMenuType = MenuType.ALL_MOVIES;
+    this._activeMenuType = MenuTypes.ALL_MOVIES;
 
     this._dataChangeHandlers = [];
     this._menuChangeHandlers = [];
