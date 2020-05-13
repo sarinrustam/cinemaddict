@@ -1,4 +1,4 @@
-import {MenuType} from '@src/utils/common.js';
+import {MenuTypes} from '@src/utils/common.js';
 import {getFilterdCards} from '@src/utils/menu.js';
 import {render, replace, RenderPosition} from '@src/utils/render.js';
 import Menu from '@components/menu.js';
@@ -8,7 +8,7 @@ export default class MenuController {
     this._container = container;
     this._cardsModel = cardsModel;
 
-    this._activeMenuType = MenuType.ALL_MOVIES;
+    this._activeMenuType = MenuTypes.ALL_MOVIES;
 
     this._menuComponent = null;
 
@@ -21,7 +21,7 @@ export default class MenuController {
   render() {
     const container = this._container;
     const allCards = this._cardsModel.getCardsAll();
-    const menues = Object.values(MenuType).map((menuType) => {
+    const menues = Object.values(MenuTypes).map((menuType) => {
       return {
         title: menuType.replace(`-`, ` `)[0].toUpperCase() + menuType.replace(`-`, ` `).slice(1),
         value: menuType,

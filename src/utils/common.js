@@ -6,7 +6,7 @@ export const Buttons = {
   ESC: `Escape`,
 };
 
-export const MenuType = {
+export const MenuTypes = {
   ALL_MOVIES: `all-movies`,
   WATCHLIST: `watchlist`,
   HISTORY: `history`,

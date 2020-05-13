@@ -174,33 +174,47 @@ export default class MainController {
   _onDataChange(cardController, oldData, newData) {
     if (oldData === EmptyCard) {
       this._creatingCard = null;
+
       if (newData === null) {
         cardController.destroy();
         this._updateCards(this._showingCardCount);
       } else {
-        this._cardsModel.addTask(newData);
-        cardController.render(newData, CardControllerMode.DEFAULT);
-
-        if (this._showingTasksCount % DEFAULT_CARDS === 0) {
-          const destroyedCard = this._showedCardControllers.pop();
-          destroyedCard.destroy();
-        }
-
-        this._showedCardControllers = [].concat(cardController, this._showedCardControllers);
-        this._showingCardsCount = this._showedCardControllers.length;
-
-        this._renderLoadMoreButton();
+        this._addCardData(cardController, newData);
       }
-    } else if (newData === null) {
-      this._cardsModel.removeCard(oldData.id);
-      this._updateCards(this._showingCardCount);
-    } else {
-      const isSuccess = this._cardsModel.updateCard(oldData.id, newData);
 
-      if (isSuccess) {
-        cardController.render(newData, CardControllerMode.DEFAULT);
-      }
+      return;
     }
+
+    if (newData === null) {
+      this._removeCardData(oldData);
+      return;
+    }
+
+    const isSuccess = this._cardsModel.updateCard(oldData.id, newData);
+
+    if (isSuccess) {
+      cardController.render(newData, CardControllerMode.DEFAULT);
+    }
+  }
+
+  _removeCardData(data) {
+    this._cardsModel.removeCard(data.id);
+    this._updateCards(this._showingCardCount);
+  }
+
+  _addCardData(cardController, newData) {
+    this._cardsModel.addCard(newData);
+    cardController.render(newData, CardControllerMode.DEFAULT);
+
+    if (this._showingCardCount % DEFAULT_CARDS === 0) {
+      const destroyedCard = this._showedCardControllers.pop();
+      destroyedCard.destroy();
+    }
+
+    this._showedCardControllers = [].concat(cardController, this._showedCardControllers);
+    this._showingCardCount = this._showedCardControllers.length;
+
+    this._renderLoadMoreButton();
   }
 
   _onSortTypeChange(sortType) {
@@ -208,11 +222,6 @@ export default class MainController {
     let filteredCards = this._cardsModel.getCards();
 
     const sortedCards = this._getSortedCards(filteredCards, sortType, 0, this._showingCardCount);
-    // const cardListElement = this._filmCards.getElement().querySelector(`.films-list__container`);
-
-    // cardListElement.innerHTML = ``;
-    // const newCards = renderCards(cardListElement, sortedCards, this._onDataChange, this._onViewChange);
-    // this._showedCardControllers = newCards;
     this._removeCards();
     this._renderCards(sortedCards);
 
@@ -224,12 +233,10 @@ export default class MainController {
 
     const cards = this._cardsModel.getCards();
 
-    // const cardListElement = this._filmCards.getElement().querySelector(`.films-list__container`);
-
     this._showingCardCount = this._showingCardCount + SHOW_CLICK_CARDS;
 
     const sortedCards = this._getSortedCards(cards, this._sortComponent.getSortType(), prevCardCount, this._showingCardCount);
-    // const newCards = renderCards(cardListElement, sortedCards, this._onDataChange, this._onViewChange);
+
     this._renderCards(sortedCards);
 
     if (this._showingCardCount >= sortedCards.length) {
