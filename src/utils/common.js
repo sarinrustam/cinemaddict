@@ -6,6 +6,14 @@ export const Buttons = {
   ESC: `Escape`,
 };
 
+export const StatMenuTypes = {
+  ALL_TIME: `all-time`,
+  TODAY: `today`,
+  WEEK: `week`,
+  MONTH: `month`,
+  YEAR: `year`
+};
+
 export const MenuTypes = {
   ALL_MOVIES: `all-movies`,
   WATCHLIST: `watchlist`,

@@ -34,7 +34,7 @@ export default class MainController {
     this._message = new Message();
     this._moreButton = new MoreButton();
     this._filmCards = new FilmCards();
-    this._stat = new Statistics();
+    this._stat = new Statistics(model);
     this._filmsTopRated = new FilmCardsExtra(`Top rated`);
     this._filmsMostCommented = new FilmCardsExtra(`Most commented`);
 
@@ -82,6 +82,7 @@ export default class MainController {
     filterController.setStatisticsClickHandler(this._onStatClickChange);
 
     render(this._container, this._stat, RenderPosition.BEFOREEND);
+    this._stat.hide();
 
     render(this._container, this._sortComponent, RenderPosition.BEFOREEND);
     render(this._container, this._board, RenderPosition.BEFOREEND);

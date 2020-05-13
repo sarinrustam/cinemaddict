@@ -105,7 +105,7 @@ const getRandomSentences = (string) => {
   return string.split(`.`).slice(0, getRandomNumber(COUNT_FROM_SENTENCES, COUNT_TO_SENTENCES)).join(`.`);
 };
 
-const DATE_FILM_START = `1921`;
+const DATE_FILM_START = `2020`;
 const DATE_COMMENT_START = `2020`;
 
 const getRandomDate = (min) => {
