@@ -16,7 +16,7 @@ const createTemplate = (data) => {
         </div>
         <div class="film-details__info-wrap">
           <div class="film-details__poster">
-            <img class="film-details__poster-img" src="./images/posters/${data.poster}" alt="">
+            <img class="film-details__poster-img" src="${data.poster}" alt="">
 
             <p class="film-details__age">${data.pg}</p>
           </div>
@@ -60,7 +60,7 @@ const createTemplate = (data) => {
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Genres</td>
-                <td class="film-details__cell">${data.gernes.map((it)=>`<span class="film-details__genre">${it}</span>`).join(``)}</td>
+                <td class="film-details__cell">${data.genre.map((it)=>`<span class="film-details__genre">${it}</span>`).join(``)}</td>
               </tr>
             </table>
 
@@ -87,7 +87,7 @@ const createTemplate = (data) => {
           <ul class="film-details__comments-list">
           ${data.comments.map((it, index) => `<li class="film-details__comment" data-id=${index}>
           <span class="film-details__comment-emoji">
-            <img src="./images/emoji/${it.emoji}" width="55" height="55" alt="emoji-${it.alt}">
+            <img src="./images/emoji/${it.emoji}.png" width="55" height="55" alt="emoji-${it.alt}">
           </span>
           <div>
             <p class="film-details__comment-text">${encode(it.text)}</p>

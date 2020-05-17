@@ -30,13 +30,13 @@ const getUniqItems = (item, index, array) => {
   return array.indexOf(item) === index;
 };
 
-const calcUniqueGenres = (cards, gernes) => {
-  return cards.filter((it) => it === gernes).length;
+const calcUniqueGenres = (cards, genre) => {
+  return cards.filter((it) => it === genre).length;
 };
 
 const getGenresByCard = (cards) => {
   return cards.reduce((prev, next) => {
-    return [...prev, ...next.gernes];
+    return [...prev, ...next.genre];
   }, []);
 };
 

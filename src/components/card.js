@@ -25,9 +25,9 @@ const createTemplate = (data) => {
       <p class="film-card__info">
         <span class="film-card__year">${year}</span>
   <span class="film-card__duration">${time}</span>
-  <span class="film-card__genre">${data.gernes[0]}</span>
+  <span class="film-card__genre">${data.genre[0]}</span>
       </p>
-      <img src="./images/posters/${data.poster}" alt="" class="film-card__poster">
+      <img src="${data.poster}" alt="" class="film-card__poster">
   <p class="film-card__description">${data.description}</p>
   <a class="film-card__comments">${data.comments.length} comments</a>
       <form class="film-card__controls">

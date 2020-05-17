@@ -1,12 +1,13 @@
-import MenuController from '@src/controllers/menu.js';
-import Sort, {SortType} from '@components/sort.js';
 import Board from '@components/filmsBoard.js';
-import FilmCards from '@components/filmCards.js';
-import Message from '@components/message.js';
-import MoreButton from '@components/moreButton.js';
-import FilmCardsExtra from '@components/extra.js';
-import Statistics from '@components/statistics.js';
 import CardController, {Mode as CardControllerMode, EmptyCard} from '@controllers/card.js';
+import FilmCards from '@components/filmCards.js';
+import FilmCardsExtra from '@components/extra.js';
+import Message from '@components/message.js';
+import MenuController from '@src/controllers/menu.js';
+import MoreButton from '@components/moreButton.js';
+
+import Sort, {SortType} from '@components/sort.js';
+import Statistics from '@components/statistics.js';
 import {render, RenderPosition, remove} from '@src/utils/render.js';
 
 const DEFAULT_CARDS = 5;
@@ -16,7 +17,6 @@ const COUNT_EXTRA_CARD = 2;
 const renderCards = function (container, cards, onDataChange, onViewChange) {
   return cards.map((card) => {
     const cardController = new CardController(container, onDataChange, onViewChange);
-
     cardController.render(card);
 
     return cardController;
@@ -37,7 +37,6 @@ export default class MainController {
     this._stat = new Statistics(model);
     this._filmsTopRated = new FilmCardsExtra(`Top rated`);
     this._filmsMostCommented = new FilmCardsExtra(`Most commented`);
-
 
     this._showedCardControllers = [];
 
@@ -231,13 +230,11 @@ export default class MainController {
 
   _onLoadMoreButtonClick() {
     const prevCardCount = this._showingCardCount;
-
     const cards = this._cardsModel.getCards();
 
     this._showingCardCount = this._showingCardCount + SHOW_CLICK_CARDS;
 
     const sortedCards = this._getSortedCards(cards, this._sortComponent.getSortType(), prevCardCount, this._showingCardCount);
-
     this._renderCards(sortedCards);
 
     if (this._showingCardCount >= sortedCards.length) {

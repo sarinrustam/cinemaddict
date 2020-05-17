@@ -61,6 +61,12 @@ export default class CardsModel {
     this._callHandlers(this._dataChangeHandlers);
   }
 
+  setComments(index, comments) {
+    this._cards = [].concat(this._cards.slice(0, index), Object.assign({}, this._cards[index], {
+      comments
+    }), this._cards.slice(index + 1));
+  }
+
   setDataChangeHandler(handler) {
     this._dataChangeHandlers.push(handler);
   }
