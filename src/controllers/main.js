@@ -14,19 +14,20 @@ const DEFAULT_CARDS = 5;
 const SHOW_CLICK_CARDS = 5;
 const COUNT_EXTRA_CARD = 2;
 
-const renderCards = function (container, cards, onDataChange, onViewChange) {
-  return cards.map((card) => {
+const renderCards = function (container, cards, comments, onDataChange, onViewChange) {
+  return cards.map((card, i) => {
     const cardController = new CardController(container, onDataChange, onViewChange);
-    cardController.render(card);
+    cardController.render(card, comments[i]);
 
     return cardController;
   });
 };
 
 export default class MainController {
-  constructor(container, model) {
+  constructor(container, model, api) {
     this._container = container;
     this._cardsModel = model;
+    this._api = api;
 
     this._showingCardCount = DEFAULT_CARDS;
     this._sortComponent = new Sort();
@@ -87,16 +88,17 @@ export default class MainController {
     render(this._container, this._board, RenderPosition.BEFOREEND);
   }
 
-  _renderCards(cards) {
+  _renderCards(cards, comments) {
     const cardListElement = this._filmCards.getElement().querySelector(`.films-list__container`);
 
-    const newCards = renderCards(cardListElement, cards, this._onDataChange, this._onViewChange);
+    const newCards = renderCards(cardListElement, cards, comments, this._onDataChange, this._onViewChange);
     this._showedCardControllers = this._showedCardControllers.concat(newCards);
     this._showingCardCount = this._showedCardControllers.length;
   }
 
   _renderContent() {
     const cards = this._cardsModel.getCards();
+    const comments = this._cardsModel.getComments();
 
     const cardsContainer = this._filmCards.getElement().querySelector(`.films-list__container`);
 
@@ -108,13 +110,13 @@ export default class MainController {
       const sortedCards = this._getSortedCards(cards, sortType, 0, this._showingCardCount);
 
       cardsContainer.innerHTML = ``;
-      const newCards = renderCards(cardsContainer, sortedCards, this._onDataChange, this._onViewChange);
+      const newCards = renderCards(cardsContainer, sortedCards, comments, this._onDataChange, this._onViewChange);
       this._showedCardControllers = newCards;
 
       this._renderLoadMoreButton();
     };
 
-    this._renderCards(cards.slice(0, this._showingCardCount));
+    this._renderCards(cards.slice(0, this._showingCardCount), comments);
     this._renderLoadMoreButton();
 
     this._sortComponent.setSortTypeChangeHandler((sortType) => {
@@ -124,6 +126,7 @@ export default class MainController {
 
   _renderExtraContent() {
     const cards = this._cardsModel.getCards();
+    const comments = this._cardsModel.getComments();
     const filmsTopRatedData = cards.sort((a, b) => b.rating - a.rating).slice(0, COUNT_EXTRA_CARD);
     const filmsMostCommentedData = cards.sort((a, b) => b.comments.length - a.comments.length).slice(0, COUNT_EXTRA_CARD);
 
@@ -133,8 +136,8 @@ export default class MainController {
     render(this._board.getElement(), this._filmsTopRated, RenderPosition.BEFOREEND);
     render(this._board.getElement(), this._filmsMostCommented, RenderPosition.BEFOREEND);
 
-    renderCards(filmsTopRatedContainer, filmsTopRatedData.slice(0, COUNT_EXTRA_CARD));
-    renderCards(filmsMostCommentedContainer, filmsMostCommentedData.slice(0, COUNT_EXTRA_CARD));
+    renderCards(filmsTopRatedContainer, filmsTopRatedData.slice(0, COUNT_EXTRA_CARD), comments);
+    renderCards(filmsMostCommentedContainer, filmsMostCommentedData.slice(0, COUNT_EXTRA_CARD), comments);
   }
 
   render() {
@@ -161,8 +164,10 @@ export default class MainController {
   }
 
   _updateCards(count) {
+    const comments = this._cardsModel.getComments();
+
     this._removeCards();
-    this._renderCards(this._cardsModel.getCards().slice(0, count));
+    this._renderCards(this._cardsModel.getCards().slice(0, count), comments);
     this._renderLoadMoreButton();
     this._sortComponent.reset();
   }
@@ -190,11 +195,16 @@ export default class MainController {
       return;
     }
 
-    const isSuccess = this._cardsModel.updateCard(oldData.id, newData);
+    this._api.updateMovie(oldData.id, newData)
+      .then((cardModel) => {
+        const isSuccess = this._cardsModel.updateCard(oldData.id, cardModel);
+        const index = this._cardsModel.getCardsAll().findIndex((it) => it.id === oldData.id);
 
-    if (isSuccess) {
-      cardController.render(newData, CardControllerMode.DEFAULT);
-    }
+        if (isSuccess) {
+          cardController.render(cardModel, this._cardsModel.getComments()[index], CardControllerMode.DEFAULT);
+          this._updateCards(this._showingCardsCount);
+        }
+      });
   }
 
   _removeCardData(data) {
@@ -220,10 +230,11 @@ export default class MainController {
   _onSortTypeChange(sortType) {
     this._showingCardCount = DEFAULT_CARDS;
     let filteredCards = this._cardsModel.getCards();
+    const comments = this._cardsModel.getComments();
 
     const sortedCards = this._getSortedCards(filteredCards, sortType, 0, this._showingCardCount);
     this._removeCards();
-    this._renderCards(sortedCards);
+    this._renderCards(sortedCards, comments);
 
     this._renderLoadMoreButton();
   }
@@ -231,11 +242,12 @@ export default class MainController {
   _onLoadMoreButtonClick() {
     const prevCardCount = this._showingCardCount;
     const cards = this._cardsModel.getCards();
+    const comments = this._cardsModel.getComments();
 
     this._showingCardCount = this._showingCardCount + SHOW_CLICK_CARDS;
 
     const sortedCards = this._getSortedCards(cards, this._sortComponent.getSortType(), prevCardCount, this._showingCardCount);
-    this._renderCards(sortedCards);
+    this._renderCards(sortedCards, comments);
 
     if (this._showingCardCount >= sortedCards.length) {
       remove(this._moreButton);

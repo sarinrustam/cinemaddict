@@ -1,4 +1,5 @@
 import Card from '@components/card.js';
+import CardModel from '@src/models/card.js';
 import Popup from '@components/popup.js';
 
 import {render, RenderPosition, remove, replace} from '@src/utils/render.js';
@@ -24,12 +25,12 @@ export default class CardController {
     this._onEscKeyDown = this._onEscKeyDown.bind(this);
   }
 
-  render(card) {
+  render(card, comments) {
     const oldCardComponent = this._cardComponent;
     const oldPopupComponent = this._popupComponent;
 
     this._cardComponent = new Card(card);
-    this._popupComponent = new Popup(card);
+    this._popupComponent = new Popup(card, comments);
 
     this._cardComponent.setClickPopupHandler(() => {
       this._openPopup();
@@ -44,33 +45,34 @@ export default class CardController {
     this._cardComponent.setAddToWatchlistHandler((evt) => {
       evt.preventDefault();
 
-      this._onDataChange(this, card, Object.assign({}, card, {
-        isInWatchlist: !card.isInWatchlist,
-      }));
+      const newCard = CardModel.clone(card);
+      newCard.isInWatchlist = !newCard.isInWatchlist;
+
+      this._onDataChange(this, card, newCard);
     });
 
     this._cardComponent.setMarkAsWatchedHandler((evt) => {
       evt.preventDefault();
 
-      this._onDataChange(this, card, Object.assign({}, card, {
-        isWatched: !card.isWatched,
-      }));
+      const newCard = CardModel.clone(card);
+      newCard.isWatched = !newCard.isWatched;
+
+      this._onDataChange(this, card, newCard);
     });
 
     this._cardComponent.setMarkAsFavoriteHandler((evt) => {
       evt.preventDefault();
 
-      this._onDataChange(this, card, Object.assign({}, card, {
-        isFavorite: !card.isFavorite,
-      }));
+      const newCard = CardModel.clone(card);
+      newCard.isFavorite = !newCard.isFavorite;
+
+      this._onDataChange(this, card, newCard);
     });
 
     this._popupComponent.setDeleteCommentHandler((evt) => {
       evt.preventDefault();
 
       const commentElementIndex = evt.target.closest(`li`).dataset.id;
-
-      const comments = card.comments.slice();
 
       comments.splice(commentElementIndex, 1);
 

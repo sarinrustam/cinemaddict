@@ -4,6 +4,7 @@ import {MenuTypes} from '@src/utils/common.js';
 export default class CardsModel {
   constructor() {
     this._cards = [];
+    this._comments = [];
     this._activeMenuType = MenuTypes.ALL_MOVIES;
 
     this._dataChangeHandlers = [];
@@ -12,6 +13,10 @@ export default class CardsModel {
 
   getCards() {
     return getFilterdCards(this._cards, this._activeMenuType);
+  }
+
+  getComments() {
+    return this._comments;
   }
 
   getCardsAll() {
@@ -61,10 +66,8 @@ export default class CardsModel {
     this._callHandlers(this._dataChangeHandlers);
   }
 
-  setComments(index, comments) {
-    this._cards = [].concat(this._cards.slice(0, index), Object.assign({}, this._cards[index], {
-      comments
-    }), this._cards.slice(index + 1));
+  addComments(comments) {
+    this._comments = comments;
   }
 
   setDataChangeHandler(handler) {

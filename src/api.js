@@ -1,26 +1,62 @@
 import Card from '@src/models/card.js';
 import Comment from '@src/models/comment.js';
 
+const CodesErrors = {
+  200: `200`,
+  300: `300`,
+};
+
+const Methods = {
+  GET: `GET`,
+  POST: `POST`,
+  PUT: `PUT`,
+  DELETE: `DELETE`
+};
+
+const checkStatus = (response) => {
+  if (response.status >= CodesErrors[200] && response.status < CodesErrors[300]) {
+    return response;
+  } else {
+    throw new Error(`Код ошибки: ${response.status}. Текст ошибки: ${response.statusText}`);
+  }
+};
+
 export default class API {
-  constructor(authorization) {
+  constructor(endPoint, authorization) {
     this._authorization = authorization;
+    this._endPoint = endPoint;
   }
 
   getMovies() {
-    const headers = new Headers();
-    headers.append(`Authorization`, this._authorization);
-
-    return fetch(`https://11.ecmascript.pages.academy/cinemaddict/movies`, {headers})
+    return this._load({url: `movies`})
       .then((response) => response.json())
       .then(Card.parseMovies);
   }
 
   getComment(id) {
-    const headers = new Headers();
-    headers.append(`Authorization`, this._authorization);
-
-    return fetch(`https://11.ecmascript.pages.academy/cinemaddict/comments/${id}`, {headers})
+    return this._load({url: `comments/${id}`})
       .then((response) => response.json())
       .then(Comment.parseComments);
+  }
+
+  updateMovie(id, data) {
+    return this._load({
+      url: `movies/${id}`,
+      method: Methods.PUT,
+      body: JSON.stringify(data.toRAW()),
+      headers: new Headers({"Content-Type": `application/json`})
+    })
+      .then((response) => response.json())
+      .then(Card.parseMovie);
+  }
+
+  _load({url, method = Methods.GET, body = null, headers = new Headers()}) {
+    headers.append(`Authorization`, this._authorization);
+
+    return fetch(`${this._endPoint}/${url}`, {method, body, headers})
+       .then(checkStatus)
+       .catch((err) => {
+         throw err;
+       });
   }
 }

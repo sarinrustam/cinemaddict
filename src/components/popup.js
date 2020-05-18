@@ -3,7 +3,7 @@ import {formatTime, formatDateFull, formatDateFormComments} from '@src/utils/com
 
 import {encode} from 'he';
 
-const createTemplate = (data) => {
+const createTemplate = (data, comments) => {
   const time = formatTime(data.duration);
   const date = formatDateFull(data.date);
 
@@ -85,7 +85,7 @@ const createTemplate = (data) => {
           <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${data.comments.length}</span></h3>
 
           <ul class="film-details__comments-list">
-          ${data.comments.map((it, index) => `<li class="film-details__comment" data-id=${index}>
+          ${comments.map((it, index) => `<li class="film-details__comment" data-id=${index}>
           <span class="film-details__comment-emoji">
             <img src="./images/emoji/${it.emoji}.png" width="55" height="55" alt="emoji-${it.alt}">
           </span>
@@ -137,10 +137,11 @@ const createTemplate = (data) => {
 };
 
 export default class Popup extends AbstractSmartComponent {
-  constructor(data) {
+  constructor(data, comments) {
     super();
 
     this._data = data;
+    this._comments = comments;
     this._newComment = {
       text: ``,
       emoji: ``,
@@ -176,7 +177,7 @@ export default class Popup extends AbstractSmartComponent {
   }
 
   getTemplate() {
-    return createTemplate(this._data);
+    return createTemplate(this._data, this._comments);
   }
 
   setClickPopupHandler(handler) {
