@@ -15,7 +15,7 @@ const init = function () {
 
   const main = document.querySelector(`.main`);
   const header = document.querySelector(`.header`);
-  const mainController = new MainController(main, cardsModel, api);
+  const mainController = new MainController(main, cardsModel, commentsModel, api);
   const rank = new Rank();
 
   render(header, rank, RenderPosition.BEFOREEND);
@@ -32,7 +32,6 @@ const init = function () {
     })
     .then((comments) => {
       commentsModel.setComments(comments);
-      cardsModel.addComments(commentsModel.getComments());
 
       mainController.render();
     });

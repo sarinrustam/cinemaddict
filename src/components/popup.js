@@ -1,7 +1,12 @@
 import AbstractSmartComponent from '@components/abstract-smart-component.js';
 import {formatTime, formatDateFull, formatDateFormComments} from '@src/utils/common.js';
-
+import CommentModel from '@src/models/comment.js';
 import {encode} from 'he';
+
+export const ButtonTexts = {
+  DELETE: `Delete`,
+  DELETING: `Deleting...`
+};
 
 const createTemplate = (data, comments) => {
   const time = formatTime(data.duration);
@@ -85,15 +90,15 @@ const createTemplate = (data, comments) => {
           <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${data.comments.length}</span></h3>
 
           <ul class="film-details__comments-list">
-          ${comments.map((it, index) => `<li class="film-details__comment" data-id=${index}>
+          ${data.comments.map((it) => `<li class="film-details__comment" data-id=${it}>
           <span class="film-details__comment-emoji">
-            <img src="./images/emoji/${it.emoji}.png" width="55" height="55" alt="emoji-${it.alt}">
+            <img src="./images/emoji/${comments[it].emoji}.png" width="55" height="55" alt="emoji-${comments[it].alt}">
           </span>
           <div>
-            <p class="film-details__comment-text">${encode(it.text)}</p>
+            <p class="film-details__comment-text">${encode(comments[it].text)}</p>
             <p class="film-details__comment-info">
-              <span class="film-details__comment-author">${it.author}</span>
-              <span class="film-details__comment-day">${formatDateFormComments(it.date)}</span>
+              <span class="film-details__comment-author">${comments[it].author}</span>
+              <span class="film-details__comment-day">${formatDateFormComments(comments[it].date)}</span>
               <button class="film-details__comment-delete">Delete</button>
             </p>
           </div>
@@ -147,6 +152,7 @@ export default class Popup extends AbstractSmartComponent {
       emoji: ``,
       alt: ``
     };
+    this._externalData = ButtonTexts;
 
     this._popupClickHandler = null;
     this._submitHandler = null;
@@ -161,9 +167,11 @@ export default class Popup extends AbstractSmartComponent {
   }
 
   getNewComment() {
-    return Object.assign({}, this._newComment, {
-      author: ``,
-      date: new Date()
+    return new CommentModel({
+      "comment": this._newComment.text,
+      "date": new Date(),
+      "author": ``,
+      "emotion": this._newComment.emoji
     });
   }
 
@@ -177,7 +185,7 @@ export default class Popup extends AbstractSmartComponent {
   }
 
   getTemplate() {
-    return createTemplate(this._data, this._comments);
+    return createTemplate(this._data, this._comments, this._externalData);
   }
 
   setClickPopupHandler(handler) {
@@ -200,7 +208,7 @@ export default class Popup extends AbstractSmartComponent {
 
         const putPlaceContainer = element.querySelector(`.film-details__add-emoji-label`);
         putPlaceContainer.innerHTML = ``;
-        this._newComment.emoji = `${evt.target.value}.png`;
+        this._newComment.emoji = `${evt.target.value}`;
         putPlaceContainer.appendChild(image);
       });
     });
@@ -215,6 +223,11 @@ export default class Popup extends AbstractSmartComponent {
     element.querySelector(`.film-details__comment-input`).addEventListener(`input`, (evt) => {
       this._newComment.text = evt.target.value;
     });
+  }
+
+  setData(data) {
+    this._externalData = Object.assign({}, ButtonTexts, data);
+    this.rerender();
   }
 
   setSubmitHandler(handler) {

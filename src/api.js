@@ -27,16 +27,36 @@ export default class API {
     this._endPoint = endPoint;
   }
 
-  getMovies() {
-    return this._load({url: `movies`})
+  createComment(id, comment) {
+    return this._load({
+      url: `comments/${id}`,
+      method: Methods.POST,
+      body: JSON.stringify(comment.toRAW()),
+      headers: new Headers({"Content-Type": `application/json`}),
+    })
       .then((response) => response.json())
-      .then(Card.parseMovies);
+      .then(({comments, movie}) => {
+        return {
+          comments: Comment.parseComments(comments),
+          movie: Card.parseMovie(movie)
+        };
+      });
+  }
+
+  deleteComment(id) {
+    return this._load({url: `comments/${id}`, method: Methods.DELETE});
   }
 
   getComment(id) {
     return this._load({url: `comments/${id}`})
       .then((response) => response.json())
       .then(Comment.parseComments);
+  }
+
+  getMovies() {
+    return this._load({url: `movies`})
+      .then((response) => response.json())
+      .then(Card.parseMovies);
   }
 
   updateMovie(id, data) {

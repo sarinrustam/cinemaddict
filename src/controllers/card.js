@@ -4,20 +4,24 @@ import Popup from '@components/popup.js';
 
 import {render, RenderPosition, remove, replace} from '@src/utils/render.js';
 import {Buttons} from '@src/utils/common.js';
+import {ButtonTexts} from '@src/components/popup.js';
+
+const SHAKE_ANIMATION_TIMEOUT = 600;
 
 export const Mode = {
   DEFAULT: `default`,
   IS_OPEN: `open`,
 };
 
-export const EmptyCard = {};
-
 export default class CardController {
-  constructor(contrainer, onDataChange, onViewChange) {
+  constructor(contrainer, onDataChange, onChangeComments, onViewChange) {
     this._container = contrainer;
     this._onDataChange = onDataChange;
     this._onViewChange = onViewChange;
+    this._onChangeComments = onChangeComments;
     this._mode = Mode.DEFAULT;
+    this._scrollTopPopup = null;
+    this.formIsDisabled = false;
 
     this._cardComponent = null;
     this._popupComponent = null;
@@ -25,21 +29,21 @@ export default class CardController {
     this._onEscKeyDown = this._onEscKeyDown.bind(this);
   }
 
-  render(card, comments) {
+  render(card, comments, mode) {
     const oldCardComponent = this._cardComponent;
     const oldPopupComponent = this._popupComponent;
 
     this._cardComponent = new Card(card);
     this._popupComponent = new Popup(card, comments);
 
+    if (mode === Mode.IS_OPEN) {
+      this._openPopup();
+      this._popupComponent.getElement().scrollTop = this._scrollTopPopup;
+    }
+
     this._cardComponent.setClickPopupHandler(() => {
       this._openPopup();
       document.addEventListener(`keydown`, this._onEscKeyDown);
-    });
-
-    this._popupComponent.setClickPopupHandler(() => {
-      this._closePopup();
-      document.removeEventListener(`keydown`, this._onEscKeyDown);
     });
 
     this._cardComponent.setAddToWatchlistHandler((evt) => {
@@ -69,25 +73,35 @@ export default class CardController {
       this._onDataChange(this, card, newCard);
     });
 
+    this._popupComponent.setClickPopupHandler(() => {
+      this._closePopup();
+      document.removeEventListener(`keydown`, this._onEscKeyDown);
+    });
+
     this._popupComponent.setDeleteCommentHandler((evt) => {
       evt.preventDefault();
 
-      const commentElementIndex = evt.target.closest(`li`).dataset.id;
+      evt.target.innerText = ButtonTexts.DELETING;
+      evt.target.disabled = true;
 
-      comments.splice(commentElementIndex, 1);
+      const id = evt.target.closest(`li`).dataset.id;
 
-      this._onDataChange(this, card, Object.assign({}, card, {
-        comments
-      }));
+      const newCard = CardModel.clone(card);
+      const index = card.comments.findIndex((it) => it === id);
+      newCard.comments = [].concat(card.comments.slice(0, index), card.comments.slice(index + 1));
+
+      this._scrollTopPopup = this._popupComponent.getElement().scrollTop;
+
+      this._onChangeComments(this, card, newCard, id, null);
     });
 
     this._popupComponent.setSubmitHandler((evt) => {
-      if (evt.key === Buttons.ENT && evt.ctrlKey) {
+      if (evt.key === Buttons.ENT && evt.ctrlKey && !this.formIsDisabled) {
+        this.formIsDisabled = true;
         const comment = this._popupComponent.getNewComment();
+        this._scrollTopPopup = this._popupComponent.getElement().scrollTop;
 
-        this._onDataChange(this, card, Object.assign({}, card, {
-          comments: [].concat(card.comments, [comment])
-        }));
+        this._onChangeComments(this, card, null, null, comment);
       }
     });
 
@@ -121,10 +135,10 @@ export default class CardController {
   }
 
   _closePopup() {
+    this._popupComponent.reset();
     const footer = document.querySelector(`.footer`);
     footer.innerHTML = ``;
     this._mode = Mode.DEFAULT;
-    this._popupComponent.reset();
   }
 
   _onEscKeyDown(evt) {
@@ -134,5 +148,28 @@ export default class CardController {
       this._closePopup();
       document.removeEventListener(`keydown`, this._onEscKeyDown);
     }
+  }
+
+  shakeComment(id) {
+    const comment = this._popupComponent.getElement().querySelector(`[data-id="${id}"]`);
+    const deleteButton = comment.querySelector(`.film-details__comment-delete`);
+    deleteButton.disabled = false;
+    deleteButton.innerText = ButtonTexts.DELETE;
+
+    comment.style.animation = `shake ${SHAKE_ANIMATION_TIMEOUT / 1000}s`;
+
+    setTimeout(() => {
+      comment.style.animation = ``;
+    }, SHAKE_ANIMATION_TIMEOUT);
+  }
+
+  shakeForm() {
+    const form = this._popupComponent.getElement().querySelector(`.film-details__inner`);
+    form.style.animation = `shake ${SHAKE_ANIMATION_TIMEOUT / 1000}s`;
+    this.formIsDisabled = true;
+
+    setTimeout(() => {
+      form.style.animation = ``;
+    }, SHAKE_ANIMATION_TIMEOUT);
   }
 }
