@@ -77,10 +77,6 @@ export default class MainController {
   }
 
   _renderContainer() {
-    if (!this._cardsModel.getCards().length) {
-      render(this._container, this._message, RenderPosition.BEFOREEND);
-    }
-
     const filterController = new MenuController(this._container, this._cardsModel);
     filterController.render();
 
@@ -100,8 +96,13 @@ export default class MainController {
 
     render(this._board.getElement(), this._filmCards, RenderPosition.BEFOREEND);
 
-    this._renderCards(cards.slice(0, this._showingCardCount));
-    this._renderLoadMoreButton();
+    if (this._cardsModel.getCards().length) {
+      this._renderCards(cards.slice(0, this._showingCardCount));
+      this._renderLoadMoreButton();
+      this._renderExtraContent();
+    } else {
+      render(this._container, this._message, RenderPosition.BEFOREEND);
+    }
   }
 
   _renderExtraContent() {
@@ -123,7 +124,6 @@ export default class MainController {
   render() {
     this._renderContainer();
     this._renderContent();
-    this._renderExtraContent();
   }
 
   _getSortedCards(cards, sortType, from, to) {
