@@ -1,6 +1,5 @@
 export default class Store {
   constructor(key, localStorage) {
-    console.log(key, localStorage, 'key, localStorage')
     this._storageKey = key;
     this._storage = localStorage;
   }
