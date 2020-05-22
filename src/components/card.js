@@ -1,6 +1,9 @@
 import AbstractComponent from '@components/abstract-component.js';
 import {formatTime, formatDateYear} from '@src/utils/common.js';
 
+const MAX_DESC_SYMBOLS = 139;
+const ENTRY_POINT_SYMBOLS = 140;
+
 const createButtonMarkup = (name, isActive = true) => {
   return (
     `<button
@@ -20,15 +23,18 @@ const createTemplate = (data) => {
   const time = formatTime(data.duration);
   const year = formatDateYear(data.date);
 
+  const genre = data.genre.length === 0 ? `` : data.genre[0];
+  const shortDecription = data.description.length > ENTRY_POINT_SYMBOLS ? data.description.slice(0, MAX_DESC_SYMBOLS) + `...` : data.description;
+
   const cardMarkup = `<h3 class="film-card__title">${data.name}</h3>
   <p class="film-card__rating">${data.rating}</p>
       <p class="film-card__info">
         <span class="film-card__year">${year}</span>
   <span class="film-card__duration">${time}</span>
-  <span class="film-card__genre">${data.genre[0]}</span>
+  <span class="film-card__genre">${genre}</span>
       </p>
       <img src="${data.poster}" alt="" class="film-card__poster">
-  <p class="film-card__description">${data.description}</p>
+  <p class="film-card__description">${shortDecription}</p>
   <a class="film-card__comments">${data.comments.length} comments</a>
       <form class="film-card__controls">
         ${addToWatchlist}

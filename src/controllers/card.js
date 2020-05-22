@@ -13,6 +13,19 @@ export const Mode = {
   IS_OPEN: `open`,
 };
 
+const Types = {
+  WATCHLIST: `isInWatchlist`,
+  WATCHED: `isWatched`,
+  FAVORITE: `isFavorite`,
+};
+
+const cardKeyChange = (controller, card, key) =>{
+  const newCard = CardModel.clone(card);
+  newCard[key] = !newCard[key];
+
+  controller._onDataChange(controller, card, newCard);
+};
+
 export default class CardController {
   constructor(contrainer, onDataChange, onChangeComments, onViewChange) {
     this._container = contrainer;
@@ -36,6 +49,13 @@ export default class CardController {
     this._cardComponent = new Card(card);
     this._popupComponent = new Popup(card, comments);
 
+    if (oldCardComponent && oldPopupComponent) {
+      replace(this._cardComponent, oldCardComponent);
+      replace(this._popupComponent, oldPopupComponent);
+    } else {
+      render(this._container, this._cardComponent, RenderPosition.BEFOREEND);
+    }
+
     if (mode === Mode.IS_OPEN) {
       this._openPopup();
       this._popupComponent.getElement().scrollTop = this._scrollTopPopup;
@@ -49,28 +69,19 @@ export default class CardController {
     this._cardComponent.setAddToWatchlistHandler((evt) => {
       evt.preventDefault();
 
-      const newCard = CardModel.clone(card);
-      newCard.isInWatchlist = !newCard.isInWatchlist;
-
-      this._onDataChange(this, card, newCard);
+      cardKeyChange(this, card, Types.WATCHLIST);
     });
 
     this._cardComponent.setMarkAsWatchedHandler((evt) => {
       evt.preventDefault();
 
-      const newCard = CardModel.clone(card);
-      newCard.isWatched = !newCard.isWatched;
-
-      this._onDataChange(this, card, newCard);
+      cardKeyChange(this, card, Types.WATCHED);
     });
 
     this._cardComponent.setMarkAsFavoriteHandler((evt) => {
       evt.preventDefault();
 
-      const newCard = CardModel.clone(card);
-      newCard.isFavorite = !newCard.isFavorite;
-
-      this._onDataChange(this, card, newCard);
+      cardKeyChange(this, card, Types.FAVORITE);
     });
 
     this._popupComponent.setClickPopupHandler(() => {
@@ -97,7 +108,8 @@ export default class CardController {
 
     this._popupComponent.setSubmitHandler((evt) => {
       if (evt.key === Buttons.ENT && evt.ctrlKey && !this.formIsDisabled) {
-        this.formIsDisabled = true;
+        this.disableForm(true);
+
         const comment = this._popupComponent.getNewComment();
         this._scrollTopPopup = this._popupComponent.getElement().scrollTop;
 
@@ -105,12 +117,17 @@ export default class CardController {
       }
     });
 
-    if (oldCardComponent && oldPopupComponent) {
-      replace(this._cardComponent, oldCardComponent);
-      replace(this._popupComponent, oldPopupComponent);
-    } else {
-      render(this._container, this._cardComponent, RenderPosition.BEFOREEND);
-    }
+    this._popupComponent.setControlWatchlistHandler(() => {
+      cardKeyChange(this, card, Types.WATCHLIST);
+    });
+
+    this._popupComponent.setControlWatchedHandler(() => {
+      cardKeyChange(this, card, Types.WATCHED);
+    });
+
+    this._popupComponent.setControlFavoriteHandler(() => {
+      cardKeyChange(this, card, Types.FAVORITE);
+    });
   }
 
   setDefaultView() {
@@ -128,17 +145,15 @@ export default class CardController {
   _openPopup() {
     this._onViewChange();
     const footer = document.querySelector(`.footer`);
-    footer.innerHTML = ``;
 
     render(footer, this._popupComponent, RenderPosition.BEFOREEND);
+    this._popupComponent.reset();
     this._mode = Mode.IS_OPEN;
   }
 
   _closePopup() {
-    this._popupComponent.reset();
-    const footer = document.querySelector(`.footer`);
-    footer.innerHTML = ``;
     this._mode = Mode.DEFAULT;
+    remove(this._popupComponent);
   }
 
   _onEscKeyDown(evt) {
@@ -171,5 +186,17 @@ export default class CardController {
     setTimeout(() => {
       form.style.animation = ``;
     }, SHAKE_ANIMATION_TIMEOUT);
+  }
+
+  disableForm(value) {
+    this.formIsDisabled = value;
+    const input = this._popupComponent.getElement().querySelector(`.film-details__comment-input`);
+    const radioInputs = Array.from(this._popupComponent.getElement().querySelectorAll(`.film-details__emoji-item`));
+
+    input.disabled = value;
+
+    radioInputs.forEach((it) => {
+      it.disabled = value;
+    });
   }
 }

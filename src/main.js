@@ -3,6 +3,7 @@ import CardsModel from '@src/models/cards.js';
 import CommentsModel from '@src/models/comments.js';
 import MainController from '@src/controllers/main.js';
 import Rank from '@components/rank.js';
+import StatFooter from '@components/footer-stat.js';
 import {RenderPosition, render} from '@src/utils/render.js';
 
 const AUTHORIZATION = `Basic dsijgsd;lf32rl;sdf=`;
@@ -15,10 +16,10 @@ const init = function () {
 
   const main = document.querySelector(`.main`);
   const header = document.querySelector(`.header`);
+  const footer = document.querySelector(`.footer`);
   const mainController = new MainController(main, cardsModel, commentsModel, api);
-  const rank = new Rank();
 
-  render(header, rank, RenderPosition.BEFOREEND);
+  mainController.renderContainer();
 
   api.getMovies()
     .then((movies) => {
@@ -33,7 +34,12 @@ const init = function () {
     .then((comments) => {
       commentsModel.setComments(comments);
 
-      mainController.render();
+      const rank = new Rank(cardsModel);
+      const stat = new StatFooter(cardsModel.getCardsAll().length);
+
+      render(header, rank, RenderPosition.BEFOREEND);
+      render(footer, stat, RenderPosition.BEFOREEND);
+      mainController.renderContent();
     });
 };
 
