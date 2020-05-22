@@ -12,6 +12,11 @@ const createTemplate = (data, comments) => {
   const time = formatTime(data.duration);
   const date = formatDateFull(data.date);
 
+  const replaceGenre = () => {
+    const genre = data.genre.length > 1 ? `Genres` : `Genre`;
+    return genre;
+  };
+
   return (
     `<section class="film-details">
     <form class="film-details__inner" action="" method="get">
@@ -64,7 +69,7 @@ const createTemplate = (data, comments) => {
                 <td class="film-details__cell">${data.country}</td>
               </tr>
               <tr class="film-details__row">
-                <td class="film-details__term">Genres</td>
+                <td class="film-details__term">${replaceGenre()}</td>
                 <td class="film-details__cell">${data.genre.map((it)=>`<span class="film-details__genre">${it}</span>`).join(``)}</td>
               </tr>
             </table>
@@ -74,13 +79,13 @@ const createTemplate = (data, comments) => {
         </div>
 
         <section class="film-details__controls">
-          <input type="checkbox" class="film-details__control-input visually-hidden" id="watchlist" name="watchlist">
+          <input type="checkbox" class="film-details__control-input visually-hidden" id="watchlist" name="watchlist" ${data.isInWatchlist ? `checked` : ``}>
           <label for="watchlist" class="film-details__control-label film-details__control-label--watchlist">Add to watchlist</label>
 
-          <input type="checkbox" class="film-details__control-input visually-hidden" id="watched" name="watched">
+          <input type="checkbox" class="film-details__control-input visually-hidden" id="watched" name="watched" ${data.isWatched ? `checked` : ``}>
           <label for="watched" class="film-details__control-label film-details__control-label--watched">Already watched</label>
 
-          <input type="checkbox" class="film-details__control-input visually-hidden" id="favorite" name="favorite">
+          <input type="checkbox" class="film-details__control-input visually-hidden" id="favorite" name="favorite" ${data.isFavorite ? `checked` : ``}>
           <label for="favorite" class="film-details__control-label film-details__control-label--favorite">Add to favorites</label>
         </section>
       </div>
@@ -156,6 +161,10 @@ export default class Popup extends AbstractSmartComponent {
 
     this._popupClickHandler = null;
     this._submitHandler = null;
+    this._deleteCommentHandler = null;
+    this._controlWatchlistHandler = null;
+    this._controlWatchedHandler = null;
+    this._controlFavoriteHandler = null;
 
     this._subscribeOnEvents();
   }
@@ -175,9 +184,18 @@ export default class Popup extends AbstractSmartComponent {
     });
   }
 
+  setData(data) {
+    this._externalData = Object.assign({}, ButtonTexts, data);
+    this.rerender();
+  }
+
   recoveryListeners() {
-    this.setSubmitHandler(this._submitHandler);
     this._subscribeOnEvents();
+    this.setSubmitHandler(this._submitHandler);
+    this.setDeleteCommentHandler(this._deleteCommentHandler);
+    this.setControlWatchlistHandler(this._controlWatchlistHandler);
+    this.setControlWatchedHandler(this._controlWatchedHandler);
+    this.setControlFavoriteHandler(this._controlFavoriteHandler);
   }
 
   rerender() {
@@ -186,14 +204,6 @@ export default class Popup extends AbstractSmartComponent {
 
   getTemplate() {
     return createTemplate(this._data, this._comments, this._externalData);
-  }
-
-  setClickPopupHandler(handler) {
-    const closeBtn = this.getElement().querySelector(`.film-details__close-btn`);
-
-    closeBtn.addEventListener(`click`, handler);
-
-    this._popupClickHandler = handler;
   }
 
   _subscribeOnEvents() {
@@ -225,9 +235,12 @@ export default class Popup extends AbstractSmartComponent {
     });
   }
 
-  setData(data) {
-    this._externalData = Object.assign({}, ButtonTexts, data);
-    this.rerender();
+  setClickPopupHandler(handler) {
+    const closeBtn = this.getElement().querySelector(`.film-details__close-btn`);
+
+    closeBtn.addEventListener(`click`, handler);
+
+    this._popupClickHandler = handler;
   }
 
   setSubmitHandler(handler) {
@@ -242,6 +255,32 @@ export default class Popup extends AbstractSmartComponent {
     deleteButtons.forEach((it) => {
       it.addEventListener(`click`, handler);
     });
+
+    this._deleteCommentHandler = handler;
+  }
+
+  setControlWatchlistHandler(handler) {
+    const checkbox = this.getElement().querySelector(`#watchlist`);
+
+    checkbox.addEventListener(`change`, handler);
+
+    this._controlWatchlistHandler = handler;
+  }
+
+  setControlWatchedHandler(handler) {
+    const checkbox = this.getElement().querySelector(`#watched`);
+
+    checkbox.addEventListener(`change`, handler);
+
+    this._controlWatchedHandler = handler;
+  }
+
+  setControlFavoriteHandler(handler) {
+    const checkbox = this.getElement().querySelector(`#favorite`);
+
+    checkbox.addEventListener(`change`, handler);
+
+    this._controlFavoriteHandler = handler;
   }
 }
 

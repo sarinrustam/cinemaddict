@@ -1,4 +1,5 @@
 import Card from '@src/models/card.js';
+import Comment from '@src/models/comment.js';
 import {nanoid} from 'nanoid';
 
 const isOnline = () => {
@@ -19,9 +20,10 @@ const createStoreStructure = (items) => {
 };
 
 export default class Provider {
-  constructor(api, store) {
+  constructor(api, storeCards, storeComments) {
     this._api = api;
-    this._store = store;
+    this._storeCards = storeCards;
+    this._storeComments = storeComments;
   }
 
   getMovies() {
@@ -30,42 +32,22 @@ export default class Provider {
         .then((cards) => {
           const items = createStoreStructure(cards.map((card) => card.toRAW()));
 
-          this._store.setItems(items);
+          this._storeCards.setItems(items);
 
           return cards;
         });
     }
 
-    const storeTasks = Object.values(this._store.getItems());
+    const storeTasks = Object.values(this._storeCards.getItems());
 
     return Promise.resolve(Card.parseTasks(storeTasks));
-  }
-
-  createMovie(movie) {
-    if (isOnline()) {
-      return this._api.createMovie(movie)
-        .then((newMovie) => {
-          this._store.setItem(newMovie.id, newMovie.toRAW());
-
-          return newMovie;
-        });
-    }
-
-    // На случай локального создания данных мы должны сами создать `id`.
-    // Иначе наша модель будет не полной и это может привнести баги.
-    const localNewMovieId = nanoid();
-    const localNewMovie = Card.clone(Object.assign(movie, {id: localNewMovieId}));
-
-    this._store.setItem(localNewMovie.id, localNewMovie.toRAW());
-
-    return Promise.resolve(localNewMovie);
   }
 
   updateMovie(id, movie) {
     if (isOnline()) {
       return this._api.updateMovie(id, movie)
         .then((newMovie) => {
-          this._store.setItem(newMovie.id, newMovie.toRAW());
+          this._storeCards.setItem(newMovie.id, newMovie.toRAW());
 
           return newMovie;
         });
@@ -78,13 +60,63 @@ export default class Provider {
     return Promise.resolve(locaMovie);
   }
 
-  deleteMovie(id) {
+  getComment(id) {
     if (isOnline()) {
-      return this._api.deleteMovie(id)
-        .then(() => this._store.removeItem(id));
+      return this._api.getComment(id)
+        .then((comments) => {
+          const items = createStoreStructure(comments.map((comment) => {
+            return comment.toRAW();
+          }));
+
+          for (let key in items) {
+            if (items.hasOwnProperty(key)) {
+              this._storeComments.setItem(key, items[key]);
+            }
+          }
+
+          return comments;
+        });
     }
 
-    this._store.removeItem(id);
+    const storeTasks = Object.values(this._storeComments.getItems());
+
+    return Promise.resolve(Comment.parseComments(storeTasks));
+  }
+
+  createComment(id, comment) {
+    if (isOnline()) {
+      return this._api.createComment(id, comment)
+        .then(({comments, movie}) => {
+          this._storeCards.setItem(id, movie.toRAW());
+          const items = createStoreStructure(comments.map((it) => {
+            return it.toRAW();
+          }));
+
+          for (let key in items) {
+            if (items.hasOwnProperty(key)) {
+              this._storeComments.setItem(key, items[key]);
+            }
+          }
+
+          return {comments, movie};
+        });
+    }
+
+    const localNewCommentId = nanoid();
+    const localNewComment = Comment.clone(Object.assign(comment, {id: localNewCommentId}));
+
+    this._storeComments.setItem(localNewComment.id, localNewComment.toRAW());
+
+    return Promise.resolve(localNewComment);
+  }
+
+  deleteComment(id) {
+    if (isOnline()) {
+      return this._api.deleteComment(id)
+        .then(() => this._storeComments.removeItem(id));
+    }
+
+    this._storeComments.removeItem(id);
 
     return Promise.resolve();
   }

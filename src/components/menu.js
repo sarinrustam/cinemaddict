@@ -1,5 +1,13 @@
 import AbstractComponent from '@components/abstract-component.js';
 
+const countMarkup = (count) => {
+  return (
+    `<span class="main-navigation__item-count">
+    ${count}
+    </span>`
+  );
+};
+
 const createMenuMarkup = (menu, isChecked) => {
   const {title, value, count} = menu;
 
@@ -9,9 +17,7 @@ const createMenuMarkup = (menu, isChecked) => {
       data-menu-type=${value}
       class="main-navigation__item ${isChecked ? `main-navigation__item--active` : ``}">
       ${title}
-      <span class="main-navigation__item-count">
-      ${count}
-     </span>
+      ${(count && count <= 5) ? countMarkup(count) : ``}
     </a>`
   );
 };
@@ -68,6 +74,7 @@ export default class Menu extends AbstractComponent {
 
     statButton.addEventListener(`click`, (evt) => {
       evt.preventDefault();
+
       handler();
     });
   }

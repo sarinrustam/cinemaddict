@@ -1,8 +1,10 @@
 export default class Store {
   constructor(key, localStorage) {
+    console.log(key, localStorage, 'key, localStorage')
     this._storageKey = key;
     this._storage = localStorage;
   }
+
   getItems() {
     try {
       return JSON.parse(this._storage.getItem(this._storageKey)) || {};
@@ -26,7 +28,7 @@ export default class Store {
 
   setItems(items) {
     this._storage.setItem(
-        this._storeKey,
+        this._storageKey,
         JSON.stringify(items)
     );
   }

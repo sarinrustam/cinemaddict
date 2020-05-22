@@ -4,13 +4,14 @@ import {render, replace, RenderPosition} from '@src/utils/render.js';
 import Menu from '@components/menu.js';
 
 export default class MenuController {
-  constructor(container, cardsModel) {
+  constructor(container, cardsModel, onStatClickChange) {
     this._container = container;
     this._cardsModel = cardsModel;
 
     this._activeMenuType = MenuTypes.ALL_MOVIES;
 
     this._menuComponent = null;
+    this._onStatClickChange = onStatClickChange;
 
     this._onDataChange = this._onDataChange.bind(this);
     this._onMenuChange = this._onMenuChange.bind(this);
@@ -25,7 +26,7 @@ export default class MenuController {
       return {
         title: menuType.replace(`-`, ` `)[0].toUpperCase() + menuType.replace(`-`, ` `).slice(1),
         value: menuType,
-        count: getFilterdCards(allCards, menuType).length,
+        count: MenuTypes.ALL_MOVIES === menuType ? null : getFilterdCards(allCards, menuType).length,
         checked: menuType === this._activeMenuType,
       };
     });
@@ -40,6 +41,8 @@ export default class MenuController {
     } else {
       render(container, this._menuComponent, RenderPosition.BEFOREEND);
     }
+
+    this._menuComponent.setStatisticsClickHandler(this._onStatClickChange);
   }
 
   _onMenuChange(menuType) {
@@ -49,9 +52,5 @@ export default class MenuController {
 
   _onDataChange() {
     this.render();
-  }
-
-  setStatisticsClickHandler(handler) {
-    this._menuComponent.setStatisticsClickHandler(handler);
   }
 }

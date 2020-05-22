@@ -3,6 +3,7 @@ import {StatMenuTypes} from '@src/utils/common.js';
 import Chart from "chart.js";
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import moment from 'moment';
+import {getRank} from '@components/rank.js';
 
 const MINUTES_IN_HOUR = 60;
 
@@ -124,12 +125,15 @@ const createButtonMarkup = (filter, isChecked) => {
 };
 
 const createTemplate = (cards, filter) => {
-  const moviesCount = cards.filter((it) => it.isWatched).length;
-  const moviesTotalDuration = cards.reduce((prev, next) => {
+  const watchedMovies = cards.filter((it) => it.isWatched);
+
+  const moviesCount = watchedMovies.length;
+
+  const moviesTotalDuration = watchedMovies.reduce((prev, next) => {
     return (prev += next.duration);
   }, 0);
 
-  const topGenre = getTopGenre(getUniqueGenres(cards), cards);
+  const topGenre = getTopGenre(getUniqueGenres(cards), cards) === undefined ? `` : getTopGenre(getUniqueGenres(cards), cards);
   const hours = Math.trunc(moviesTotalDuration / MINUTES_IN_HOUR);
   const minutes = moviesTotalDuration % MINUTES_IN_HOUR;
 
@@ -148,7 +152,7 @@ const createTemplate = (cards, filter) => {
     <p class="statistic__rank">
       Your rank
       <img class="statistic__img" src="images/bitmap@2x.png" alt="Avatar" width="35" height="35">
-      <span class="statistic__rank-label">Sci-Fighter</span>
+      <span class="statistic__rank-label">${getRank(cards)}</span>
     </p>
 
     <form action="https://echo.htmlacademy.ru/" method="get" class="statistic__filters">

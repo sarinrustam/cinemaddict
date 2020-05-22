@@ -1,5 +1,11 @@
 import moment from 'moment';
 
+export const Ranks = {
+  NOVICE: `Novice`,
+  FAN: `Fan`,
+  MOVIE_BUFF: `Movie Buff`,
+};
+
 export const Buttons = {
   LMB: 0,
   ENT: `Enter`,
