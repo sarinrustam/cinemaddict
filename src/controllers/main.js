@@ -262,7 +262,7 @@ export default class MainController {
 
   _onSortTypeChange(sortType) {
     this._showingCardCount = DEFAULT_CARDS;
-    let filteredCards = this._cardsModel.getCards();
+    const filteredCards = this._cardsModel.getCards();
 
     const sortedCards = this._getSortedCards(filteredCards, sortType, 0, this._showingCardCount);
     this._removeCards();
