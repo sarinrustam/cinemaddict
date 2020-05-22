@@ -266,6 +266,7 @@ export default class MainController {
 
     const sortedCards = this._getSortedCards(filteredCards, sortType, 0, this._showingCardCount);
     this._removeCards();
+    
     this._renderCards(sortedCards);
 
     this._renderLoadMoreButton();
