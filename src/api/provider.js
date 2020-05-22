@@ -68,7 +68,7 @@ export default class Provider {
             return comment.toRAW();
           }));
 
-          for (let key in items) {
+          for (const key in items) {
             if (items.hasOwnProperty(key)) {
               this._storeComments.setItem(key, items[key]);
             }
@@ -92,7 +92,7 @@ export default class Provider {
             return it.toRAW();
           }));
 
-          for (let key in items) {
+          for (const key in items) {
             if (items.hasOwnProperty(key)) {
               this._storeComments.setItem(key, items[key]);
             }
