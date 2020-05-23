@@ -275,6 +275,7 @@ export default class MainController {
     const prevCardCount = this._showingCardCount;
     const cards = this._cardsModel.getCards();
     const comments = this._commentsModel.getObjectComments();
+
     this._showingCardCount = this._showingCardCount + SHOW_CLICK_CARDS;
 
     const sortedCards = this._getSortedCards(cards, this._sortComponent.getSortType(), prevCardCount, this._showingCardCount);
