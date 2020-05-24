@@ -72,7 +72,7 @@ export default class API {
 
   sync(data) {
     return this._load({
-      url: `tasks/sync`,
+      url: `movies/sync`,
       method: Methods.POST,
       body: JSON.stringify(data),
       headers: new Headers({"Content-Type": `application/json`})
