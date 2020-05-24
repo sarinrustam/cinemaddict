@@ -1,4 +1,4 @@
-import API from '@src/api/index.js';
+import API from '@src/api/api.js';
 import CardsModel from '@src/models/cards.js';
 import CommentsModel from '@src/models/comments.js';
 import MainController from '@src/controllers/main.js';

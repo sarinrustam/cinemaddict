@@ -8,12 +8,13 @@ const createTemplate = (data) => {
   );
 };
 
-export default class StatFooter extends AbstractComponent {
+export default class FooterStat extends AbstractComponent {
   constructor(data) {
     super();
 
     this._data = data;
   }
+
   getTemplate() {
     return createTemplate(this._data);
   }

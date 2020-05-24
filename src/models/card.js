@@ -21,18 +21,6 @@ export default class Card {
     this.watchingDate = data[`user_details`][`watching_date`];
   }
 
-  static parseMovie(data) {
-    return new Card(data);
-  }
-
-  static parseMovies(data) {
-    return data.map(Card.parseMovie);
-  }
-
-  static clone(data) {
-    return new Card(data.toRAW());
-  }
-
   toRAW() {
     return {
       "id": this.id,
@@ -61,5 +49,17 @@ export default class Card {
         "watching_date": this.watchingDate,
       },
     };
+  }
+
+  static parseMovie(data) {
+    return new Card(data);
+  }
+
+  static parseMovies(data) {
+    return data.map(Card.parseMovie);
+  }
+
+  static clone(data) {
+    return new Card(data.toRAW());
   }
 }

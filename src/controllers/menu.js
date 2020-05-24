@@ -1,9 +1,9 @@
 import {MenuTypes} from '@src/utils/common.js';
 import {getFilterdCards} from '@src/utils/menu.js';
 import {render, replace, RenderPosition} from '@src/utils/render.js';
-import Menu from '@components/menu.js';
+import MenuComponent from '@components/menu.js';
 
-export default class MenuController {
+export default class Menu {
   constructor(container, cardsModel, onStatClickChange) {
     this._container = container;
     this._cardsModel = cardsModel;
@@ -33,7 +33,7 @@ export default class MenuController {
 
     const oldComponent = this._menuComponent;
 
-    this._menuComponent = new Menu(menues);
+    this._menuComponent = new MenuComponent(menues);
     this._menuComponent.setMenuTypeChangeHandler(this._onMenuChange);
 
     if (oldComponent) {

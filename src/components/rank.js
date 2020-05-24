@@ -34,6 +34,7 @@ export default class Rank extends AbstractComponent {
 
     this._cardsModel = cardsModel;
   }
+
   getTemplate() {
     return createTemplate(this._cardsModel.getCardsAll());
   }

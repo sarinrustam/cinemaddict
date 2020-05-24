@@ -2,6 +2,12 @@ import AbstractSmartComponent from '@components/abstract-smart-component.js';
 import {formatTime, formatDateFull, formatDateFormComments} from '@src/utils/common.js';
 import CommentModel from '@src/models/comment.js';
 import {encode} from 'he';
+import {isOnline} from '@src/api/provider.js';
+
+const OFFLINE = `offline`;
+
+const SHAKE_ANIMATION_TIMEOUT = 600;
+const AMOUNT_MILISECONDS_IN_SECOND = 1000;
 
 export const ButtonTexts = {
   DELETE: `Delete`,
@@ -158,6 +164,7 @@ export default class Popup extends AbstractSmartComponent {
       alt: ``
     };
     this._externalData = ButtonTexts;
+    this.disableComments = false;
 
     this._popupClickHandler = null;
     this._submitHandler = null;
@@ -169,10 +176,42 @@ export default class Popup extends AbstractSmartComponent {
     this._subscribeOnEvents();
   }
 
+  getTemplate() {
+    return createTemplate(this._data, this._comments, this._externalData);
+  }
+
+  recoveryListeners() {
+    this._onlineHandler = this._onlineHandler.bind(this);
+    this._subscribeOnEvents();
+    this.setSubmitHandler(this._submitHandler);
+    this.setDeleteCommentHandler(this._deleteCommentHandler);
+    this.setControlWatchlistHandler(this._controlWatchlistHandler);
+    this.setControlWatchedHandler(this._controlWatchedHandler);
+    this.setControlFavoriteHandler(this._controlFavoriteHandler);
+    this.setClickPopupHandler(this._popupClickHandler);
+  }
+
+  rerender() {
+    super.rerender();
+  }
+
+  removeElement() {
+    super.removeElement();
+
+    window.removeEventListener(`offline`, this._onlineHandler);
+    window.removeEventListener(`online`, this._onlineHandler);
+  }
+
   reset() {
     this._newComment.text = ``;
 
     this.rerender();
+
+    if (!isOnline()) {
+
+      this.disableForm(true);
+      this._disableDeleteButtons(true);
+    }
   }
 
   getNewComment() {
@@ -189,21 +228,45 @@ export default class Popup extends AbstractSmartComponent {
     this.rerender();
   }
 
-  recoveryListeners() {
-    this._subscribeOnEvents();
-    this.setSubmitHandler(this._submitHandler);
-    this.setDeleteCommentHandler(this._deleteCommentHandler);
-    this.setControlWatchlistHandler(this._controlWatchlistHandler);
-    this.setControlWatchedHandler(this._controlWatchedHandler);
-    this.setControlFavoriteHandler(this._controlFavoriteHandler);
+  shakeForm() {
+    const form = this.getElement().querySelector(`.film-details__inner`);
+    form.style.animation = `shake ${SHAKE_ANIMATION_TIMEOUT / AMOUNT_MILISECONDS_IN_SECOND}s`;
+
+    setTimeout(() => {
+      form.style.animation = ``;
+    }, SHAKE_ANIMATION_TIMEOUT);
   }
 
-  rerender() {
-    super.rerender();
+  shakeComment(id) {
+    const comment = this.getElement().querySelector(`[data-id="${id}"]`);
+    const deleteButton = comment.querySelector(`.film-details__comment-delete`);
+    deleteButton.disabled = false;
+    deleteButton.innerText = ButtonTexts.DELETE;
+
+    comment.style.animation = `shake ${SHAKE_ANIMATION_TIMEOUT / AMOUNT_MILISECONDS_IN_SECOND}s`;
+
+    setTimeout(() => {
+      comment.style.animation = ``;
+    }, SHAKE_ANIMATION_TIMEOUT);
   }
 
-  getTemplate() {
-    return createTemplate(this._data, this._comments, this._externalData);
+  disableForm(value) {
+    const input = this.getElement().querySelector(`.film-details__comment-input`);
+    const radioInputs = Array.from(this.getElement().querySelectorAll(`.film-details__emoji-item`));
+
+    input.disabled = value;
+
+    radioInputs.forEach((it) => {
+      it.disabled = value;
+    });
+  }
+
+  _disableDeleteButtons(value) {
+    const deleteButtons = Array.from(this.getElement().querySelectorAll(`.film-details__comment-delete`));
+
+    deleteButtons.forEach((it) => {
+      it.disabled = value;
+    });
   }
 
   _subscribeOnEvents() {
@@ -223,16 +286,12 @@ export default class Popup extends AbstractSmartComponent {
       });
     });
 
-    const popupButtonsArray = Array.from(element.querySelectorAll(`.film-details__control-input`));
-
-    popupButtonsArray.forEach((it) => {
-      it.addEventListener(`change`, () => {
-      });
-    });
-
     element.querySelector(`.film-details__comment-input`).addEventListener(`input`, (evt) => {
       this._newComment.text = evt.target.value;
     });
+
+    window.addEventListener(`online`, this._onlineHandler.bind(this));
+    window.addEventListener(`offline`, this._onlineHandler.bind(this));
   }
 
   setClickPopupHandler(handler) {
@@ -281,6 +340,13 @@ export default class Popup extends AbstractSmartComponent {
     checkbox.addEventListener(`change`, handler);
 
     this._controlFavoriteHandler = handler;
+  }
+
+  _onlineHandler(evt) {
+    const disabled = evt.type === OFFLINE;
+
+    this.disableForm(disabled);
+    this._disableDeleteButtons(disabled);
   }
 }
 

@@ -1,12 +1,10 @@
-import Card from '@components/card.js';
+import CardComponent from '@components/card.js';
 import CardModel from '@src/models/card.js';
 import Popup from '@components/popup.js';
 
 import {render, RenderPosition, remove, replace} from '@src/utils/render.js';
 import {Buttons} from '@src/utils/common.js';
 import {ButtonTexts} from '@src/components/popup.js';
-
-const SHAKE_ANIMATION_TIMEOUT = 600;
 
 export const Mode = {
   DEFAULT: `default`,
@@ -19,14 +17,18 @@ const Types = {
   FAVORITE: `isFavorite`,
 };
 
-const cardKeyChange = (controller, card, key) =>{
+const cardKeyChange = (controller, card, key, mode) =>{
   const newCard = CardModel.clone(card);
   newCard[key] = !newCard[key];
 
-  controller._onDataChange(controller, card, newCard);
+  if (key === Types.WATCHED && newCard[key]) {
+    newCard.watchingDate = new Date();
+  }
+
+  controller._onDataChange(controller, card, newCard, mode);
 };
 
-export default class CardController {
+export default class Card {
   constructor(contrainer, onDataChange, onChangeComments, onViewChange) {
     this._container = contrainer;
     this._onDataChange = onDataChange;
@@ -46,7 +48,7 @@ export default class CardController {
     const oldCardComponent = this._cardComponent;
     const oldPopupComponent = this._popupComponent;
 
-    this._cardComponent = new Card(card);
+    this._cardComponent = new CardComponent(card);
     this._popupComponent = new Popup(card, comments);
 
     if (oldCardComponent && oldPopupComponent) {
@@ -118,15 +120,21 @@ export default class CardController {
     });
 
     this._popupComponent.setControlWatchlistHandler(() => {
-      cardKeyChange(this, card, Types.WATCHLIST);
+      cardKeyChange(this, card, Types.WATCHLIST, Mode.IS_OPEN);
+
+      this._scrollTopPopup = this._popupComponent.getElement().scrollTop;
     });
 
     this._popupComponent.setControlWatchedHandler(() => {
-      cardKeyChange(this, card, Types.WATCHED);
+      cardKeyChange(this, card, Types.WATCHED, Mode.IS_OPEN);
+
+      this._scrollTopPopup = this._popupComponent.getElement().scrollTop;
     });
 
     this._popupComponent.setControlFavoriteHandler(() => {
-      cardKeyChange(this, card, Types.FAVORITE);
+      cardKeyChange(this, card, Types.FAVORITE, Mode.IS_OPEN);
+
+      this._scrollTopPopup = this._popupComponent.getElement().scrollTop;
     });
   }
 
@@ -166,37 +174,17 @@ export default class CardController {
   }
 
   shakeComment(id) {
-    const comment = this._popupComponent.getElement().querySelector(`[data-id="${id}"]`);
-    const deleteButton = comment.querySelector(`.film-details__comment-delete`);
-    deleteButton.disabled = false;
-    deleteButton.innerText = ButtonTexts.DELETE;
-
-    comment.style.animation = `shake ${SHAKE_ANIMATION_TIMEOUT / 1000}s`;
-
-    setTimeout(() => {
-      comment.style.animation = ``;
-    }, SHAKE_ANIMATION_TIMEOUT);
+    this._popupComponent.shakeComment(id);
   }
 
   shakeForm() {
-    const form = this._popupComponent.getElement().querySelector(`.film-details__inner`);
-    form.style.animation = `shake ${SHAKE_ANIMATION_TIMEOUT / 1000}s`;
-    this.formIsDisabled = true;
-
-    setTimeout(() => {
-      form.style.animation = ``;
-    }, SHAKE_ANIMATION_TIMEOUT);
+    this._popupComponent.shakeForm();
+    this.formIsDisabled = false;
   }
 
   disableForm(value) {
     this.formIsDisabled = value;
-    const input = this._popupComponent.getElement().querySelector(`.film-details__comment-input`);
-    const radioInputs = Array.from(this._popupComponent.getElement().querySelectorAll(`.film-details__emoji-item`));
 
-    input.disabled = value;
-
-    radioInputs.forEach((it) => {
-      it.disabled = value;
-    });
+    this._popupComponent.disableForm(value);
   }
 }

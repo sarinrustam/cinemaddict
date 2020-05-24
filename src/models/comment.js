@@ -7,6 +7,16 @@ export default class Comment {
     this.id = data[`id`];
   }
 
+  toRAW() {
+    return {
+      "comment": this.text,
+      "author": this.author,
+      "date": this.date,
+      "emotion": this.emoji,
+      "id": this.id
+    };
+  }
+
   static parseComment(data) {
     return new Comment(data);
   }
@@ -17,15 +27,5 @@ export default class Comment {
 
   static clone(data) {
     return new Comment(data.toRAW());
-  }
-
-  toRAW() {
-    return {
-      "comment": this.text,
-      "author": this.author,
-      "date": this.date,
-      "emotion": this.emoji,
-      "id": this.id
-    };
   }
 }

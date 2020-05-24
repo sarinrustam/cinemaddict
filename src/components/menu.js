@@ -17,7 +17,7 @@ const createMenuMarkup = (menu, isChecked) => {
       data-menu-type=${value}
       class="main-navigation__item ${isChecked ? `main-navigation__item--active` : ``}">
       ${title}
-      ${(count && count <= 5) ? countMarkup(count) : ``}
+      ${count ? countMarkup(count) : ``}
     </a>`
   );
 };

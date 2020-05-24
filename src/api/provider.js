@@ -1,8 +1,7 @@
 import Card from '@src/models/card.js';
 import Comment from '@src/models/comment.js';
-import {nanoid} from 'nanoid';
 
-const isOnline = () => {
+export const isOnline = () => {
   return window.navigator.onLine;
 };
 
@@ -38,9 +37,9 @@ export default class Provider {
         });
     }
 
-    const storeTasks = Object.values(this._storeCards.getItems());
+    const storeCards = Object.values(this._storeCards.getItems());
 
-    return Promise.resolve(Card.parseTasks(storeTasks));
+    return Promise.resolve(Card.parseMovies(storeCards));
   }
 
   updateMovie(id, movie) {
@@ -55,7 +54,7 @@ export default class Provider {
 
     const locaMovie = Card.clone(Object.assign(movie, {id}));
 
-    this._store.setItem(id, locaMovie.toRAW());
+    this._storeCards.setItem(id, locaMovie.toRAW());
 
     return Promise.resolve(locaMovie);
   }
@@ -84,46 +83,31 @@ export default class Provider {
   }
 
   createComment(id, comment) {
-    if (isOnline()) {
-      return this._api.createComment(id, comment)
-        .then(({comments, movie}) => {
-          this._storeCards.setItem(id, movie.toRAW());
-          const items = createStoreStructure(comments.map((it) => {
-            return it.toRAW();
-          }));
+    return this._api.createComment(id, comment)
+      .then(({comments, movie}) => {
+        this._storeCards.setItem(id, movie.toRAW());
+        const items = createStoreStructure(comments.map((it) => {
+          return it.toRAW();
+        }));
 
-          for (const key in items) {
-            if (items.hasOwnProperty(key)) {
-              this._storeComments.setItem(key, items[key]);
-            }
+        for (const key in items) {
+          if (items.hasOwnProperty(key)) {
+            this._storeComments.setItem(key, items[key]);
           }
+        }
 
-          return {comments, movie};
-        });
-    }
-
-    const localNewCommentId = nanoid();
-    const localNewComment = Comment.clone(Object.assign(comment, {id: localNewCommentId}));
-
-    this._storeComments.setItem(localNewComment.id, localNewComment.toRAW());
-
-    return Promise.resolve(localNewComment);
+        return {comments, movie};
+      });
   }
 
   deleteComment(id) {
-    if (isOnline()) {
-      return this._api.deleteComment(id)
-        .then(() => this._storeComments.removeItem(id));
-    }
-
-    this._storeComments.removeItem(id);
-
-    return Promise.resolve();
+    return this._api.deleteComment(id)
+      .then(() => this._storeComments.removeItem(id));
   }
 
   sync() {
     if (isOnline()) {
-      const storeTasks = Object.values(this._store.getItems());
+      const storeTasks = Object.values(this._storeCards.getItems());
 
       return this._api.sync(storeTasks)
         .then((response) => {
@@ -135,7 +119,7 @@ export default class Provider {
           // Хранилище должно быть актуальным в любой момент.
           const items = createStoreStructure([...createdTasks, ...updatedTasks]);
 
-          this._store.setItems(items);
+          this.this._storeCards.setItems(items);
         });
     }
 

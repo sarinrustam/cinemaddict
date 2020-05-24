@@ -7,12 +7,30 @@ import {getRank} from '@components/rank.js';
 
 const MINUTES_IN_HOUR = 60;
 
+const chartProperties = {
+  bgColor: `#ffe800`,
+  hoverBgColor: `ffe800`,
+  anchor: `start`,
+  dataLabelsFontSize: 20,
+  dataLabelsColor: `#ffffff`,
+  dataLabelsAnchor: `start`,
+  dataLabelsAlign: `start`,
+  dataLabelsOffset: 40,
+  tickFontColor: `#ffffff`,
+  tickPadding: 100,
+  tickFontSize: 20,
+  tickBarTickness: 24,
+};
+
 const getFilteredCards = (cards, filter) => {
-  return cards.filter((it) => {
-    const date = it.date;
+  const watchedMovies = cards.filter((it) => it.isWatched);
+
+  return watchedMovies.filter((it) => {
+    const date = it.watchingDate;
+
     switch (filter) {
       case StatMenuTypes.ALL_TIME:
-        return cards;
+        return watchedMovies;
       case StatMenuTypes.TODAY:
         return moment().isSame(date, `day`);
       case StatMenuTypes.WEEK:
@@ -23,7 +41,7 @@ const getFilteredCards = (cards, filter) => {
         return moment().isSame(date, `year`);
     }
 
-    return cards;
+    return watchedMovies;
   });
 };
 
@@ -49,7 +67,7 @@ const getTopGenre = (genres, cards) => {
   const arr = genres.map((it) => calcUniqueGenres(getGenresByCard(cards), it));
   const max = Math.max(...arr);
 
-  return genres[arr.indexOf(max)];
+  return max === 0 || arr.indexOf(max) === -1 ? `` : genres[arr.indexOf(max)];
 };
 
 const renderChart = (statisticCtx, cards) => {
@@ -66,35 +84,35 @@ const renderChart = (statisticCtx, cards) => {
       labels: genres,
       datasets: [{
         data: genres.map((it) => calcUniqueGenres(getGenresByCard(cards), it)),
-        backgroundColor: `#ffe800`,
-        hoverBackgroundColor: `#ffe800`,
-        anchor: `start`
+        backgroundColor: chartProperties.bgColor,
+        hoverBackgroundColor: chartProperties.hoverBgColor,
+        anchor: chartProperties.anchor
       }]
     },
     options: {
       plugins: {
         datalabels: {
           font: {
-            size: 20
+            size: chartProperties.dataLabelsFontSize
           },
-          color: `#ffffff`,
-          anchor: `start`,
-          align: `start`,
-          offset: 40,
+          color: chartProperties.dataLabelsColor,
+          anchor: chartProperties.dataLabelsAnchor,
+          align: chartProperties.dataLabelsAlign,
+          offset: chartProperties.dataLabelsOffset,
         }
       },
       scales: {
         yAxes: [{
           ticks: {
-            fontColor: `#ffffff`,
-            padding: 100,
-            fontSize: 20
+            fontColor: chartProperties.tickFontColor,
+            padding: chartProperties.tickPadding,
+            fontSize: chartProperties.tickFontSize
           },
           gridLines: {
             display: false,
             drawBorder: false
           },
-          barThickness: 24
+          barThickness: chartProperties.tickBarTickness
         }],
         xAxes: [{
           ticks: {
@@ -125,15 +143,15 @@ const createButtonMarkup = (filter, isChecked) => {
 };
 
 const createTemplate = (cards, filter) => {
-  const watchedMovies = cards.filter((it) => it.isWatched);
+  const filteredCards = getFilteredCards(cards, filter);
 
-  const moviesCount = watchedMovies.length;
+  const moviesCount = filteredCards.length;
 
-  const moviesTotalDuration = watchedMovies.reduce((prev, next) => {
+  const moviesTotalDuration = filteredCards.reduce((prev, next) => {
     return (prev += next.duration);
   }, 0);
 
-  const topGenre = getTopGenre(getUniqueGenres(cards), cards) === undefined ? `` : getTopGenre(getUniqueGenres(cards), cards);
+  const topGenre = getTopGenre(getUniqueGenres(cards), filteredCards);
   const hours = Math.trunc(moviesTotalDuration / MINUTES_IN_HOUR);
   const minutes = moviesTotalDuration % MINUTES_IN_HOUR;
 
@@ -146,13 +164,14 @@ const createTemplate = (cards, filter) => {
   });
 
   const menuesMarkup = menues.map((it) => createButtonMarkup(it, it.checked)).join(`\n`);
+  const rank = getRank(cards);
 
   return (
     `<section class="statistic">
     <p class="statistic__rank">
       Your rank
       <img class="statistic__img" src="images/bitmap@2x.png" alt="Avatar" width="35" height="35">
-      <span class="statistic__rank-label">${getRank(cards)}</span>
+      <span class="statistic__rank-label">${rank}</span>
     </p>
 
     <form action="https://echo.htmlacademy.ru/" method="get" class="statistic__filters">
@@ -198,12 +217,14 @@ export default class Statistics extends AbstractSmartComponent {
   }
 
   getTemplate() {
-    return createTemplate(getFilteredCards(this._cards.getCards(), this._activeFilter), this._activeFilter);
+    return createTemplate(this._cards.getCardsAll(), this._activeFilter);
   }
 
-  rerender(cards) {
-    this._cards = cards;
+  recoveryListeners() {
+    this._setClickMenuHandler();
+  }
 
+  rerender() {
     super.rerender();
 
     this._renderCharts();
@@ -216,7 +237,7 @@ export default class Statistics extends AbstractSmartComponent {
 
     this._resetCharts();
 
-    this._chart = renderChart(statisticCtx, getFilteredCards(this._cards.getCards(), this._activeFilter));
+    this._chart = renderChart(statisticCtx, getFilteredCards(this._cards.getCardsAll(), this._activeFilter));
     this._setClickMenuHandler();
   }
 
@@ -225,10 +246,6 @@ export default class Statistics extends AbstractSmartComponent {
       this._chart.destroy();
       this._chart = null;
     }
-  }
-
-  recoveryListeners() {
-    this._setClickMenuHandler();
   }
 
   _setClickMenuHandler() {

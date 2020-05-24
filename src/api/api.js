@@ -27,6 +27,29 @@ export default class API {
     this._endPoint = endPoint;
   }
 
+  getMovies() {
+    return this._load({url: `movies`})
+      .then((response) => response.json())
+      .then(Card.parseMovies);
+  }
+
+  updateMovie(id, data) {
+    return this._load({
+      url: `movies/${id}`,
+      method: Methods.PUT,
+      body: JSON.stringify(data.toRAW()),
+      headers: new Headers({"Content-Type": `application/json`})
+    })
+      .then((response) => response.json())
+      .then(Card.parseMovie);
+  }
+
+  getComment(id) {
+    return this._load({url: `comments/${id}`})
+      .then((response) => response.json())
+      .then(Comment.parseComments);
+  }
+
   createComment(id, comment) {
     return this._load({
       url: `comments/${id}`,
@@ -45,29 +68,6 @@ export default class API {
 
   deleteComment(id) {
     return this._load({url: `comments/${id}`, method: Methods.DELETE});
-  }
-
-  getComment(id) {
-    return this._load({url: `comments/${id}`})
-      .then((response) => response.json())
-      .then(Comment.parseComments);
-  }
-
-  getMovies() {
-    return this._load({url: `movies`})
-      .then((response) => response.json())
-      .then(Card.parseMovies);
-  }
-
-  updateMovie(id, data) {
-    return this._load({
-      url: `movies/${id}`,
-      method: Methods.PUT,
-      body: JSON.stringify(data.toRAW()),
-      headers: new Headers({"Content-Type": `application/json`})
-    })
-      .then((response) => response.json())
-      .then(Card.parseMovie);
   }
 
   sync(data) {
