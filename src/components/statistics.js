@@ -203,21 +203,24 @@ const createTemplate = (cards, filter) => {
 };
 
 export default class Statistics extends AbstractSmartComponent {
-  constructor(cards) {
+  constructor(cardsModel) {
     super();
 
-    this._cards = cards;
+    this._cardsModel = cardsModel;
 
     this._activeFilter = StatMenuTypes.ALL_TIME;
 
     this.isOpen = false;
     this._chart = null;
 
+    this._onDataChange = this._onDataChange.bind(this);
+
     this._renderCharts();
+    this._cardsModel.setDataChangeHandler(this._onDataChange);
   }
 
   getTemplate() {
-    return createTemplate(this._cards.getCardsAll(), this._activeFilter);
+    return createTemplate(this._cardsModel.getCardsAll(), this._activeFilter);
   }
 
   recoveryListeners() {
@@ -237,7 +240,7 @@ export default class Statistics extends AbstractSmartComponent {
 
     this._resetCharts();
 
-    this._chart = renderChart(statisticCtx, getFilteredCards(this._cards.getCardsAll(), this._activeFilter));
+    this._chart = renderChart(statisticCtx, getFilteredCards(this._cardsModel.getCardsAll(), this._activeFilter));
     this._setClickMenuHandler();
   }
 
@@ -257,5 +260,10 @@ export default class Statistics extends AbstractSmartComponent {
         this.rerender(this._cards);
       });
     });
+  }
+
+  _onDataChange() {
+    this.rerender();
+    this.hide();
   }
 }

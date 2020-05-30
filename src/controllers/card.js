@@ -17,7 +17,7 @@ const Types = {
   FAVORITE: `isFavorite`,
 };
 
-const cardKeyChange = (controller, card, key, mode) =>{
+const cardKeyChange = (controller, card, key, mode, scrollTop) =>{
   const newCard = CardModel.clone(card);
   newCard[key] = !newCard[key];
 
@@ -25,7 +25,7 @@ const cardKeyChange = (controller, card, key, mode) =>{
     newCard.watchingDate = new Date();
   }
 
-  controller._onDataChange(controller, card, newCard, mode);
+  controller._onDataChange(controller, card, newCard, mode, scrollTop);
 };
 
 export default class Card {
@@ -44,7 +44,7 @@ export default class Card {
     this._onEscKeyDown = this._onEscKeyDown.bind(this);
   }
 
-  render(card, comments, mode) {
+  render(card, comments, mode, scrollTop) {
     const oldCardComponent = this._cardComponent;
     const oldPopupComponent = this._popupComponent;
 
@@ -60,7 +60,7 @@ export default class Card {
 
     if (mode === Mode.IS_OPEN) {
       this._openPopup();
-      this._popupComponent.getElement().scrollTop = this._scrollTopPopup;
+      this._popupComponent.getElement().scrollTop = scrollTop;
     }
 
     this._cardComponent.setClickPopupHandler(() => {
@@ -88,7 +88,6 @@ export default class Card {
 
     this._popupComponent.setClickPopupHandler(() => {
       this._closePopup();
-      document.removeEventListener(`keydown`, this._onEscKeyDown);
     });
 
     this._popupComponent.setDeleteCommentHandler((evt) => {
@@ -105,7 +104,7 @@ export default class Card {
 
       this._scrollTopPopup = this._popupComponent.getElement().scrollTop;
 
-      this._onChangeComments(this, card, newCard, id, null);
+      this._onChangeComments(this, card, newCard, id, null, Mode.IS_OPEN, this._popupComponent.getElement().scrollTop);
     });
 
     this._popupComponent.setSubmitHandler((evt) => {
@@ -115,24 +114,24 @@ export default class Card {
         const comment = this._popupComponent.getNewComment();
         this._scrollTopPopup = this._popupComponent.getElement().scrollTop;
 
-        this._onChangeComments(this, card, null, null, comment);
+        this._onChangeComments(this, card, null, null, comment, Mode.IS_OPEN, this._popupComponent.getElement().scrollTop);
       }
     });
 
     this._popupComponent.setControlWatchlistHandler(() => {
-      cardKeyChange(this, card, Types.WATCHLIST, Mode.IS_OPEN);
+      cardKeyChange(this, card, Types.WATCHLIST, Mode.IS_OPEN, this._popupComponent.getElement().scrollTop);
 
       this._scrollTopPopup = this._popupComponent.getElement().scrollTop;
     });
 
     this._popupComponent.setControlWatchedHandler(() => {
-      cardKeyChange(this, card, Types.WATCHED, Mode.IS_OPEN);
+      cardKeyChange(this, card, Types.WATCHED, Mode.IS_OPEN, this._popupComponent.getElement().scrollTop);
 
       this._scrollTopPopup = this._popupComponent.getElement().scrollTop;
     });
 
     this._popupComponent.setControlFavoriteHandler(() => {
-      cardKeyChange(this, card, Types.FAVORITE, Mode.IS_OPEN);
+      cardKeyChange(this, card, Types.FAVORITE, Mode.IS_OPEN, this._popupComponent.getElement().scrollTop);
 
       this._scrollTopPopup = this._popupComponent.getElement().scrollTop;
     });

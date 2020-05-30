@@ -1,4 +1,4 @@
-import AbstractComponent from '@components/abstract-component.js';
+import AbstractComponent from '@components/abstract-smart-component.js';
 import {Ranks} from '@src/utils/common.js';
 
 export const getRank = (data) => {
@@ -33,9 +33,28 @@ export default class Rank extends AbstractComponent {
     super();
 
     this._cardsModel = cardsModel;
+
+    this._onDataChange = this._onDataChange.bind(this);
+
+    this._cardsModel.setDataChangeHandler(this._onDataChange);
   }
 
   getTemplate() {
     return createTemplate(this._cardsModel.getCardsAll());
+  }
+
+  rerender() {
+    const oldElement = this.getElement();
+    const parent = oldElement.parentElement;
+
+    this.removeElement();
+
+    const newElement = this.getElement();
+
+    parent.replaceChild(newElement, oldElement);
+  }
+
+  _onDataChange() {
+    this.rerender();
   }
 }

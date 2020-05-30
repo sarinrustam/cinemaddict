@@ -16,15 +16,6 @@ const DEFAULT_CARDS = 5;
 const SHOW_CLICK_CARDS = 5;
 const COUNT_EXTRA_CARD = 2;
 
-const renderCards = function (container, cards, comments, onDataChange, onChangeComments, onViewChange) {
-  return cards.map((card) => {
-    const cardController = new CardController(container, onDataChange, onChangeComments, onViewChange);
-    cardController.render(card, comments);
-
-    return cardController;
-  });
-};
-
 export default class Main {
   constructor(container, cardsModel, commentsModel, api) {
     this._container = container;
@@ -45,6 +36,7 @@ export default class Main {
 
     this._showedCardControllers = [];
     this._showedMostCommentedCardControllers = [];
+    this._showedTopRatedCardControllers = [];
 
     this._onLoadMoreButtonClick = this._onLoadMoreButtonClick.bind(this);
     this._onSortTypeChange = this._onSortTypeChange.bind(this);
@@ -70,11 +62,16 @@ export default class Main {
     this._moreButton.setClickHandler(this._onLoadMoreButtonClick);
   }
 
-  _renderCards(cards) {
-    const comments = this._commentsModel.getObjectComments();
+  _renderCards(cards, openCardId, scrollTop) {
     const cardListElement = this._filmCards.getElement().querySelector(`.films-list__container`);
 
-    const newCards = renderCards(cardListElement, cards, comments, this._onDataChange, this._onChangeComments, this._onViewChange);
+    const newCards = cards.map((card) => {
+      const mode = card.id === openCardId ? CardControllerMode.IS_OPEN : CardControllerMode.DEFAULT;
+      const cardController = new CardController(cardListElement, this._onDataChange, this._onChangeComments, this._onViewChange);
+      cardController.render(card, this._commentsModel.getObjectComments(), mode, scrollTop);
+
+      return cardController;
+    });
     this._showedCardControllers = this._showedCardControllers.concat(newCards);
     this._showingCardCount = this._showedCardControllers.length;
   }
@@ -112,37 +109,47 @@ export default class Main {
     this._stat.hide();
   }
 
-  _renderTopRatedFilmes(cards, comments) {
-    const filmsTopRatedData = cards.sort((a, b) => b.rating - a.rating).slice(0, COUNT_EXTRA_CARD);
+  _renderTopRatedFilmes() {
+    const filmsTopRatedData = this._cardsModel.getCardsAll().slice().sort((a, b) => b.rating - a.rating).slice(0, COUNT_EXTRA_CARD);
 
     const filmsTopRatedContainer = this._filmsTopRated.getElement().querySelector(`.films-list__container`);
 
-    renderCards(filmsTopRatedContainer, filmsTopRatedData.slice(0, COUNT_EXTRA_CARD), comments, this._onDataChange, this._onChangeComments, this._onViewChange);
+    const newCards = filmsTopRatedData.map((card) => {
+      const cardController = new CardController(filmsTopRatedContainer, this._onDataChange, this._onChangeComments, this._onViewChange);
+      cardController.render(card, this._commentsModel.getObjectComments());
+
+      return cardController;
+    });
+    this._showedTopRatedCardControllers = this._showedTopRatedCardControllers.concat(newCards);
   }
 
-  _renderMostCommentedFilmes(cards, comments) {
-    const filmsMostCommentedData = cards.sort((a, b) => b.comments.length - a.comments.length).slice(0, COUNT_EXTRA_CARD);
+  _renderMostCommentedFilmes() {
+    const filmsMostCommentedData = this._cardsModel.getCardsAll().slice().sort((a, b) => b.comments.length - a.comments.length).slice(0, COUNT_EXTRA_CARD);
     const filmsMostCommentedContainer = this._filmsMostCommented.getElement().querySelector(`.films-list__container`);
 
-    const newCards = renderCards(filmsMostCommentedContainer, filmsMostCommentedData.slice(0, COUNT_EXTRA_CARD), comments, this._onDataChange, this._onChangeComments, this._onViewChange);
+    const newCards = filmsMostCommentedData.map((card) => {
+      const cardController = new CardController(filmsMostCommentedContainer, this._onDataChange, this._onChangeComments, this._onViewChange);
+      cardController.render(card, this._commentsModel.getObjectComments());
+
+      return cardController;
+    });
     this._showedMostCommentedCardControllers = this._showedMostCommentedCardControllers.concat(newCards);
   }
 
   _renderExtraContent() {
     const cards = this._cardsModel.getCardsAll();
-    const comments = this._commentsModel.getObjectComments();
 
     const filmsTopRatedHide = cards.every((it) => it.rating === 0);
     const filmsMostCommentedHide = cards.every((it) => it.comments.length === 0);
 
     if (!filmsTopRatedHide) {
       render(this._board.getElement(), this._filmsTopRated, RenderPosition.BEFOREEND);
-      this._renderTopRatedFilmes(cards, comments);
+      this._renderTopRatedFilmes();
     }
 
     if (!filmsMostCommentedHide) {
       render(this._board.getElement(), this._filmsMostCommented, RenderPosition.BEFOREEND);
-      this._renderMostCommentedFilmes(cards, comments);
+      this._renderMostCommentedFilmes();
     }
   }
 
@@ -170,17 +177,28 @@ export default class Main {
     this._showedCardControllers = [];
   }
 
+  _removeTopRatedFilmes() {
+    this._showedTopRatedCardControllers.forEach((cardController) => cardController.destroy());
+    this._showedTopRatedCardControllers = [];
+  }
+
   _removeMostCommentedFilmes() {
     this._showedMostCommentedCardControllers.forEach((cardController) => cardController.destroy());
     this._showedMostCommentedCardControllers = [];
   }
 
-  _updateCards(count) {
+  _updateCards(count, openCardId, scrollTop) {
+    const sortedCards = this._getSortedCards(this._cardsModel.getCards(), this._sortComponent.getSortType(), 0, count);
+
     this._removeCards();
-    this._renderCards(this._cardsModel.getCards().slice(0, count));
+    this._renderCards(sortedCards, openCardId, scrollTop);
     this._renderLoadMoreButton();
-    this._sortComponent.reset();
-    this._stat.rerender();
+
+    this._removeTopRatedFilmes();
+    this._renderTopRatedFilmes();
+
+    this._removeMostCommentedFilmes();
+    this._renderMostCommentedFilmes();
   }
 
   _addCardData(cardController, newData) {
@@ -203,31 +221,28 @@ export default class Main {
     this._updateCards(this._showingCardCount);
   }
 
-  _addCommentData(cardController, oldCard, newComment) {
+  _addCommentData(cardController, oldCard, newComment, mode, scrollTop) {
     this._api.createComment(oldCard.id, newComment)
         .then(({comments, movie}) => {
           comments.forEach((comment) => {
             this._commentsModel.addComment(comment);
           });
           this._cardsModel.updateCard(movie.id, movie);
-          cardController.render(movie, this._commentsModel.getObjectComments(), CardControllerMode.IS_OPEN);
-          this._removeMostCommentedFilmes();
-          this._renderMostCommentedFilmes(this._cardsModel.getCardsAll(), this._commentsModel.getObjectComments());
-          cardController.disableForm(false);
+          const openCardId = mode === CardControllerMode.IS_OPEN ? movie.id : null;
+          this._updateCards(this._showingCardCount, openCardId, scrollTop);
         }).catch(() => {
           cardController.shakeForm();
           cardController.disableForm(false);
         });
   }
 
-  _removeCommentData(cardController, oldCard, id, newCard) {
+  _removeCommentData(cardController, oldCard, id, newCard, mode, scrollTop) {
     this._api.deleteComment(id)
     .then(() => {
       this._commentsModel.removeComment(id);
       this._cardsModel.updateCard(newCard.id, newCard);
-      cardController.render(newCard, this._commentsModel.getObjectComments(), CardControllerMode.IS_OPEN);
-      this._removeMostCommentedFilmes();
-      this._renderMostCommentedFilmes(this._cardsModel.getCardsAll(), this._commentsModel.getObjectComments());
+      const openCardId = mode === CardControllerMode.IS_OPEN ? newCard.id : null;
+      this._updateCards(this._showingCardCount, openCardId, scrollTop);
     }).catch(() => {
       cardController.shakeComment(id);
     });
@@ -237,26 +252,27 @@ export default class Main {
     this._showedCardControllers.forEach((it) => it.setDefaultView());
   }
 
-  _onDataChange(cardController, oldData, newData, mode) {
+  _onDataChange(cardController, oldData, newData, mode, scrollTop) {
     this._api.updateMovie(oldData.id, newData)
       .then((cardModel) => {
         const isSuccess = this._cardsModel.updateCard(oldData.id, cardModel);
 
         if (isSuccess) {
-          cardController.render(cardModel, this._commentsModel.getObjectComments(), mode);
+          const openCardId = mode === CardControllerMode.IS_OPEN ? cardModel.id : null;
+          this._updateCards(this._showingCardCount, openCardId, scrollTop);
         }
       });
   }
 
-  _onChangeComments(cardController, oldCard, newCard, id, newComment) {
+  _onChangeComments(cardController, oldCard, newCard, id, newComment, mode, scrollTop) {
     if (!id) {
-      this._addCommentData(cardController, oldCard, newComment);
+      this._addCommentData(cardController, oldCard, newComment, mode, scrollTop);
 
       return;
     }
 
     if (newComment === null) {
-      this._removeCommentData(cardController, oldCard, id, newCard);
+      this._removeCommentData(cardController, oldCard, id, newCard, mode, scrollTop);
     }
   }
 
@@ -287,11 +303,12 @@ export default class Main {
 
   _onMenuChange() {
     if (this._stat.isOpen) {
-      this._stat.hide();
       this._stat.isOpen = false;
       this.show();
+      this._stat.hide();
     }
 
+    this._sortComponent.reset();
     this._updateCards(DEFAULT_CARDS);
   }
 
@@ -309,7 +326,6 @@ export default class Main {
 
   hide() {
     this._sortComponent.hide();
-    this._updateCards(DEFAULT_CARDS);
     this._filmCards.hide();
     this._filmsTopRated.hide();
     this._filmsMostCommented.hide();

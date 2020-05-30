@@ -1,4 +1,5 @@
 import AbstractComponent from '@components/abstract-component.js';
+import {MenuTypes} from '@src/utils/common.js';
 
 const countMarkup = (count) => {
   return (
@@ -17,7 +18,7 @@ const createMenuMarkup = (menu, isChecked) => {
       data-menu-type=${value}
       class="main-navigation__item ${isChecked ? `main-navigation__item--active` : ``}">
       ${title}
-      ${count ? countMarkup(count) : ``}
+      ${value === MenuTypes.ALL_MOVIES ? `` : countMarkup(count) }
     </a>`
   );
 };

@@ -9,7 +9,7 @@ const createButtonMarkup = (name, isActive = true) => {
     `<button
     class="film-card__controls-item button
     film-card__controls-item--${name.toLowerCase().split(` `).join(`-`)}
-    ${isActive ? `` : `film-card__controls-item--disabled`}">
+    ${isActive ? `` : `film-card__controls-item--active`}">
     ${name}
     </button>`
   );
