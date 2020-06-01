@@ -65,7 +65,6 @@ export default class Card {
 
     this._cardComponent.setClickPopupHandler(() => {
       this._openPopup();
-      document.addEventListener(`keydown`, this._onEscKeyDown);
     });
 
     this._cardComponent.setAddToWatchlistHandler((evt) => {
@@ -156,11 +155,13 @@ export default class Card {
     render(footer, this._popupComponent, RenderPosition.BEFOREEND);
     this._popupComponent.reset();
     this._mode = Mode.IS_OPEN;
+    document.addEventListener(`keydown`, this._onEscKeyDown);
   }
 
   _closePopup() {
     this._mode = Mode.DEFAULT;
     remove(this._popupComponent);
+    document.removeEventListener(`keydown`, this._onEscKeyDown);
   }
 
   _onEscKeyDown(evt) {
