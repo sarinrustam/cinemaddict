@@ -94,14 +94,16 @@ export default class Main {
     }
 
     const cards = this._cardsModel.getCards();
+    const cardListElement = this._filmCards.getElement().querySelector(`.films-list__container`);
 
     if (this._cardsModel.getCards().length) {
       this._renderCards(cards.slice(0, this._showingCardCount));
-      this._renderLoadMoreButton();
-      this._renderExtraContent();
     } else {
-      render(this._board.getElement(), this._message, RenderPosition.BEFOREEND);
+      render(cardListElement, this._message, RenderPosition.BEFOREEND);
     }
+
+    this._renderLoadMoreButton();
+    this._renderExtraContent();
 
     this._stat = new Statistics(this._cardsModel);
 
@@ -189,9 +191,16 @@ export default class Main {
 
   _updateCards(count, openCardId, scrollTop) {
     const sortedCards = this._getSortedCards(this._cardsModel.getCards(), this._sortComponent.getSortType(), 0, count);
-
+    const cardListElement = this._filmCards.getElement().querySelector(`.films-list__container`);
     this._removeCards();
-    this._renderCards(sortedCards, openCardId, scrollTop);
+    remove(this._message);
+
+    if (sortedCards.length) {
+      this._renderCards(sortedCards, openCardId, scrollTop);
+    } else {
+      render(cardListElement, this._message, RenderPosition.BEFOREEND);
+    }
+
     this._renderLoadMoreButton();
 
     this._removeTopRatedFilmes();
